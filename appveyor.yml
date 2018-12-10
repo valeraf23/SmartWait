@@ -1,4 +1,4 @@
-version: '2.0.{build}'
+version: '1.0.{build}'
 image: Visual Studio 2017
 branches:
   only:
@@ -11,8 +11,8 @@ before_build:
   - cmd: dotnet --version
   
 build_script:
-  - cmd: dotnet build ObjectsComparator.sln -c Release
+  - cmd: dotnet build SmartWait.sln -c Release
 
 test_script:
-  - cmd: dotnet test -c Release --no-build ObjectComparator.Tests/ObjectsComparator.Tests.csproj
+  - cmd: dotnet test -c Release --no-build SmartWait.Tests\SmartWait.Tests.csproj
   
