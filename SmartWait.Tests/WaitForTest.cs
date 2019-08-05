@@ -10,7 +10,7 @@ namespace SmartWait.Tests
     [Parallelizable(ParallelScope.Children)]
     internal class WaitForTest
     {
-        [TestCase]
+        [Test]
         public void WaitTrue()
         {
             //Arrange
@@ -22,7 +22,7 @@ namespace SmartWait.Tests
             WaitFor.Condition(() => actual, "Fail");
         }
 
-        [TestCase]
+        [Test]
         public void WaitException()
         {
             //Arrange
@@ -35,7 +35,7 @@ namespace SmartWait.Tests
                 Throws.TypeOf<WaitConditionalException>());
         }
 
-        [TestCase]
+        [Test]
         public void WaitProperlyValueForValueType()
         {
             //Arrange
@@ -48,7 +48,7 @@ namespace SmartWait.Tests
             Assert.AreEqual(3, res);
         }
 
-        [TestCase]
+        [Test]
         public void IfNotReturnActual()
         {
             //Arrange
@@ -62,7 +62,7 @@ namespace SmartWait.Tests
             Assert.AreEqual(3, res);
         }
 
-        [TestCase]
+        [Test]
         public void WaitProperlyValueForRefType()
         {
             //Arrange
@@ -84,7 +84,7 @@ namespace SmartWait.Tests
             Assert.AreEqual(3, res.A);
         }
 
-        [TestCase]
+        [Test]
         public void WaitExceptionValueForRefType()
         {
             //Arrange
@@ -105,7 +105,27 @@ namespace SmartWait.Tests
                 Throws.TypeOf<WaitConditionalException>());
         }
 
-        [TestCase]
+        [Test]
+        public void CatchNotIgnoredException()
+        {
+            //Arrange
+            bool Expected() => throw new ArgumentException("ArgumentException");
+
+            //Assert
+            Assert.That(() => WaitFor.Condition<ArgumentException>(Expected, ""),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void CatchIgnoredException()
+        {
+            //Arrange
+            bool Expected() => throw new ArgumentException("ArgumentException");
+
+            Assert.That(() => WaitFor.Condition(Expected, ""),
+                Throws.TypeOf<WaitConditionalException>());
+        }
+        [Test]
         public void WaitExceptionHandling()
         {
             //Arrange

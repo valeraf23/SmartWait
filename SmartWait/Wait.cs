@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using SmartWait.ExceptionHandler;
 using SmartWait.StepDelayImplementation;
@@ -13,6 +15,8 @@ namespace SmartWait
         private TimeSpan _step = default(TimeSpan);
         private readonly Func<T> _factory;
         private TimeSpan _maxWaitTime;
+        private IList<Type> _notIgnoredExceptionType;
+
 
         public TimeSpan Step
         {
@@ -60,6 +64,27 @@ namespace SmartWait
             return this;
         }
 
+        public Wait<T> SetNotIgnoredExceptionType(IEnumerable<Type> types)
+        {
+            var notIgnoredExceptionType = types as Type[] ?? types.ToArray();
+            var isExceptionsTypes = notIgnoredExceptionType.All(x => x.IsAssignableFrom(typeof(Exception)));
+            if (!isExceptionsTypes)
+            {
+                throw new ArgumentException("Should be Exception types");
+            }
+
+            _notIgnoredExceptionType = notIgnoredExceptionType;
+            return this;
+        }
+
+        public Wait<T> SetNotIgnoredExceptionType(Type type, params Type[] types)
+        {
+            var typesList = new List<Type>(types) {type};
+            return SetNotIgnoredExceptionType(typesList);
+
+
+        }
+
         public T For(Func<T, bool> waitCondition, string timeoutMessage)
         {
             var waitExceptionHandler = new WaitExceptionHandler(_maxWaitTime, ExceptionHandling);
@@ -75,6 +100,11 @@ namespace SmartWait
                         return value;
                     }
                 }
+                catch (Exception e) when (e.GetType() == _notIgnoredExceptionType?.GetType())
+                {
+                    throw;
+                }
+
                 catch (Exception e)
                 {
                     waitExceptionHandler.CreateExceptionMessage(e.Demystify());
