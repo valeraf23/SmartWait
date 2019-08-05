@@ -23,6 +23,18 @@ namespace SmartWait.Tests
         }
 
         [Test]
+        public void WaitTrueWithRetryCount()
+        {
+            //Arrange
+            bool Expected() => 3 > 1;
+            var actual = false;
+            //Act
+            Task.Run(() => { actual = Do(Expected); });
+            //Assert
+            WaitFor.Condition(() => actual, "Fail",100);
+        }
+
+        [Test]
         public void WaitException()
         {
             //Arrange

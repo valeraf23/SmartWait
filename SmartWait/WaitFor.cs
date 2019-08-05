@@ -41,6 +41,21 @@ namespace SmartWait
         /// Wait for some event. Throws exception if event did not appear
         /// </summary>
         /// <param name="waitCondition">Method that will return true if event appeared. Wait in stops in case of true</param>
+        /// <param name="timeoutMessage">Error message for exception</param>
+        /// <param name="retryCount"></param>
+        /// <param name="retryInterval"></param>
+        public static void Condition(Func<bool> waitCondition, string timeoutMessage, int retryCount = 5,
+            TimeSpan? retryInterval = null)
+        {
+            if (retryCount <= 0) throw new ArgumentOutOfRangeException(nameof(retryCount));
+            var maxWaitTime = (retryInterval ?? TimeSpan.FromMilliseconds(100)).TotalMilliseconds * retryCount;
+            Condition(waitCondition, timeoutMessage, TimeSpan.FromMilliseconds(maxWaitTime), ExceptionHandling.ThrowPredefined, null);
+        }
+
+        /// <summary>
+        /// Wait for some event. Throws exception if event did not appear
+        /// </summary>
+        /// <param name="waitCondition">Method that will return true if event appeared. Wait in stops in case of true</param>
         /// <param name="maxWaitTime">Max wait time. Exception will be thrown if event will not appear after this time</param>
         /// <param name="timeoutMessage">Error message for exception</param>
         public static void Condition(Func<bool> waitCondition, string timeoutMessage, TimeSpan maxWaitTime) =>
