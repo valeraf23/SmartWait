@@ -31,7 +31,7 @@ namespace SmartWait.Tests
             //Act
             Task.Run(() => { actual = Do(Expected); });
             //Assert
-            WaitFor.Condition(() => actual, "Fail",100);
+            WaitFor.Condition(() => actual, "Fail", 100);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace SmartWait.Tests
             //Act
             Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
             //Assert
-            var res = WaitFor.For(() => actual, w => w.SetExceptionHandling(ExceptionHandling.Ignore))
+            var res = WaitFor.For(() => actual, w => w.SetExceptionHandling(ExceptionHandling.Ignore).Build())
                 .Become(a => a == 5, "Fail");
             Assert.AreEqual(3, res);
         }
@@ -137,6 +137,7 @@ namespace SmartWait.Tests
             Assert.That(() => WaitFor.Condition(Expected, ""),
                 Throws.TypeOf<WaitConditionalException>());
         }
+
         [Test]
         public void WaitExceptionHandling()
         {
@@ -162,7 +163,8 @@ namespace SmartWait.Tests
             var actualErrorMsg = string.Empty;
             try
             {
-                WaitFor.Condition(() => Expected() != null, "Fail", TimeSpan.FromSeconds(timeWaitInSec), ExceptionHandling.Collect);
+                WaitFor.Condition(() => Expected() != null, "Fail", TimeSpan.FromSeconds(timeWaitInSec),
+                    ExceptionHandling.Collect);
             }
             catch (Exception e)
             {
