@@ -26,6 +26,6 @@ dotnet add package SmartWait
           ,timeoutMessage);
 
     var res = WaitFor.For(() => actual, builder => builder
-    .SetExceptionHandling(ExceptionHandling.Ignore)
-    .Build())
-         .Become(a => a == 5, "message");
+                     .SetExceptionHandling(ExceptionHandling.Ignore)
+                               .Build())
+                                 .Become(a => a == 5, "message");
