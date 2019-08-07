@@ -14,3 +14,15 @@ Install-Package SmartWait
 ```
 dotnet add package SmartWait
 ```
+## Example:
+
+```csharp
+          WaitFor.Condition(waitCondition,builder=>builder
+          .SetMaxWaitTime(maxWaitTime)
+          .SetExceptionHandling(exceptionHandling)
+          .SetCallbackForSuccessful(callback)
+          .SetNotIgnoredExceptionType(notIgnoredExceptionType)
+          .Build()
+          ,timeoutMessage);
+
+            ```
