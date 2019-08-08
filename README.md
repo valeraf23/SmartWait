@@ -17,12 +17,14 @@ dotnet add package SmartWait
 ## Example:
 
 ```csharp
-          WaitFor.Condition(waitCondition,builder=>builder
-          .SetMaxWaitTime(maxWaitTime)
-          .SetExceptionHandling(exceptionHandling)
-          .SetCallbackForSuccessful(callback)
-          .SetNotIgnoredExceptionType(notIgnoredExceptionType)
-          .Build()
+          WaitFor
+          .Condition(waitCondition,
+          builder=>builder
+                    .SetMaxWaitTime(maxWaitTime)
+                    .SetExceptionHandling(exceptionHandling)
+                    .SetCallbackForSuccessful(callback)
+                    .SetNotIgnoredExceptionType(notIgnoredExceptionType)
+                    .Build()
           ,timeoutMessage);
 
     var res = WaitFor.For(() => actual, builder => builder
