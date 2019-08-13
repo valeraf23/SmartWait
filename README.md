@@ -17,9 +17,9 @@ dotnet add package SmartWait
 ## Example:
 
 ```csharp
-          WaitFor
-          .Condition(waitCondition,
-                               builder=>builder
+WaitFor.Condition(waitCondition, timeoutMessage);
+                     
+WaitFor.Condition(waitCondition, builder=>builder
                                    .SetMaxWaitTime(maxWaitTime)
                                    .SetExceptionHandling(exceptionHandling)
                                    .SetCallbackForSuccessful(callback)
@@ -27,7 +27,9 @@ dotnet add package SmartWait
                                    .Build()
                      ,timeoutMessage);
 
-    var res = WaitFor.For(() => actual, builder => builder
+var res = WaitFor.For(() => actual).Become(a => a == 5, "message");
+                                 
+var res = WaitFor.For(() => actual, builder => builder
                      .SetExceptionHandling(ExceptionHandling.Ignore)
-                               .Build())
-                                 .Become(a => a == 5, "message");
+                      .Build())
+                      .Become(a => a == 5, "message");
