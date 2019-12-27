@@ -11,23 +11,14 @@ namespace SmartWait
     {
         public ExceptionHandling ExceptionHandling { get; set; }
         public event Action<TimeSpan> CallbackIfWaitSuccessful;
-        public TimeSpan _step = default(TimeSpan);
+        public Func<int,TimeSpan> _step;
         public readonly Func<T> Factory;
         public TimeSpan MaxWaitTime;
         public IList<Type> NotIgnoredExceptionType;
 
-
-        public TimeSpan Step
+        public Func<int,TimeSpan> Step
         {
-            get
-            {
-                if (_step == default(TimeSpan))
-                {
-                    _step = new CalculateStepDelay(MaxWaitTime).CalculateDefaultStepWaiter();
-                }
-
-                return _step;
-            }
+            get { return _step ?? (_step = _ => new CalculateStepDelay(MaxWaitTime).CalculateDefaultStepWaiter()); }
             set => _step = value;
         }
 
@@ -45,6 +36,7 @@ namespace SmartWait
         {
             var waitExceptionHandler = new WaitExceptionHandler(MaxWaitTime, ExceptionHandling);
             var stopwatch = Stopwatch.StartNew();
+            var retryAttempt = 0;
             do
             {
                 try
@@ -66,7 +58,8 @@ namespace SmartWait
                     waitExceptionHandler.CreateExceptionMessage(e.Demystify());
                 }
 
-                Thread.Sleep(Step);
+                retryAttempt++;
+                Thread.Sleep(Step(retryAttempt));
             } while (stopwatch.Elapsed < MaxWaitTime);
 
             waitExceptionHandler.ThrowException(timeoutMessage);

@@ -69,7 +69,9 @@ namespace SmartWait.Tests
             //Act
             Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
             //Assert
-            var res = WaitFor.For(() => actual, w => w.SetExceptionHandling(ExceptionHandling.Ignore).Build())
+            var res = WaitFor.For(() => actual,
+                    w => w.SetExceptionHandling(ExceptionHandling.Ignore)
+                        .SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
                 .Become(a => a == 5, "Fail");
             Assert.AreEqual(3, res);
         }

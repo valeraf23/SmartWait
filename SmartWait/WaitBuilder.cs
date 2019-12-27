@@ -13,6 +13,11 @@ namespace SmartWait
 
         public WaitBuilder<T> SetTimeBetweenStep(TimeSpan step)
         {
+            _wait._step = _=>step;
+            return this;
+        }
+        public WaitBuilder<T> SetTimeBetweenStep(Func<int,TimeSpan> step)
+        {
             _wait._step = step;
             return this;
         }
