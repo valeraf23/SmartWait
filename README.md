@@ -31,5 +31,6 @@ var res = WaitFor.For(() => actual).Become(a => a == 5, "message");
                                  
 var res = WaitFor.For(() => actual, builder => builder
                      .SetExceptionHandling(ExceptionHandling.Ignore)
-                      .Build())
-                      .Become(a => a == 5, "message");
+                     .SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
+                     .Build())
+                     .Become(a => a == 5, "message");
