@@ -1,20 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netstandard2.1</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <Company>VF</Company>
     <Authors>Valerii Fedorenko</Authors>
     <Description>Each SmartWait  instance defines the maximum amount of time to wait for a condition, as well as the frequency with which to check the condition. Furthermore, the user may configure the wait to ignore specific types of exceptions whilst waiting</Description>
-    <Version>1.0.9</Version>
+    <Version>1.1.0</Version>
     <PackageProjectUrl>https://github.com/valeraf23/SmartWait</PackageProjectUrl>
     <PackageTags>SmartWait FluentWait Fluent Wait Smart Wait</PackageTags>
-    <PackageReleaseNotes>retryAttempt</PackageReleaseNotes>
+    <PackageReleaseNotes>netcore3.1 netstandard2.1</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/valeraf23/SmartWait</RepositoryUrl>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="ExceptionHandlingStrategies\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.1.4" />

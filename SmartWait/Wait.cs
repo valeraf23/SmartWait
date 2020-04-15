@@ -11,14 +11,14 @@ namespace SmartWait
     {
         public ExceptionHandling ExceptionHandling { get; set; }
         public event Action<TimeSpan> CallbackIfWaitSuccessful;
-        public Func<int,TimeSpan> _step;
+        public Func<int,TimeSpan>? _step;
         public readonly Func<T> Factory;
         public TimeSpan MaxWaitTime;
-        public IList<Type> NotIgnoredExceptionType;
+        public IList<Type> NotIgnoredExceptionType = new List<Type>();
 
         public Func<int,TimeSpan> Step
         {
-            get { return _step ?? (_step = _ => new CalculateStepDelay(MaxWaitTime).CalculateDefaultStepWaiter()); }
+            get { return _step ??= _ => new CalculateStepDelay(MaxWaitTime).CalculateDefaultStepWaiter(); }
             set => _step = value;
         }
 
@@ -27,7 +27,7 @@ namespace SmartWait
             Factory = factory;
             MaxWaitTime = TimeSpan.FromSeconds(30);
             ExceptionHandling = ExceptionHandling.ThrowPredefined;
-            CallbackIfWaitSuccessful = null;
+            CallbackIfWaitSuccessful = span => { };
         }
 
 

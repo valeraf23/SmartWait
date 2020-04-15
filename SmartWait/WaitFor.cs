@@ -20,7 +20,6 @@ namespace SmartWait
         /// </summary>
         /// <param name="waitCondition">Method that will return true if event appeared. Wait in stops in case of true</param>
         /// <param name="timeoutMessage">Error message for exception</param>
-        /// <param name="type"></param>
         public static void Condition<TException>(Func<bool> waitCondition, string timeoutMessage)
             where TException : Exception => Condition(waitCondition,
             builder => builder.SetMaxWaitTime(TimeSpan.FromSeconds(30))
