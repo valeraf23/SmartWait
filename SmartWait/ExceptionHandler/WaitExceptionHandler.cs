@@ -20,12 +20,12 @@ namespace SmartWait.ExceptionHandler
         private readonly Dictionary<ExceptionHandling, Func<Exception, string>> _exceptionMessageHandler =
             new Dictionary
                 <ExceptionHandling, Func<Exception, string>>
-                {
-                    [ExceptionHandling.Collect] = e => e.Message,
-                    [ExceptionHandling.CollectWithStackTrace] = e => e.ToString(),
-                    [ExceptionHandling.ThrowPredefined] = e => string.Empty,
-                    [ExceptionHandling.Ignore] = e => string.Empty
-                };
+            {
+                [ExceptionHandling.Collect] = e => e.Message,
+                [ExceptionHandling.CollectWithStackTrace] = e => e.ToString(),
+                [ExceptionHandling.ThrowPredefined] = e => string.Empty,
+                [ExceptionHandling.Ignore] = e => string.Empty
+            };
 
         public void CreateExceptionMessage(Exception e) =>
             _exceptionsDuringWait.AppendLine(_exceptionMessageHandler[_ignoreExceptionsDuringWait](e));

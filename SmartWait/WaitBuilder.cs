@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SmartWait.ExceptionHandler;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmartWait.ExceptionHandler;
 
 namespace SmartWait
 {
@@ -13,12 +13,12 @@ namespace SmartWait
 
         public WaitBuilder<T> SetTimeBetweenStep(TimeSpan step)
         {
-            _wait._step = _=>step;
+            _wait.Step = _ => step;
             return this;
         }
-        public WaitBuilder<T> SetTimeBetweenStep(Func<int,TimeSpan> step)
+        public WaitBuilder<T> SetTimeBetweenStep(Func<int, TimeSpan> step)
         {
-            _wait._step = step;
+            _wait.Step = step;
             return this;
         }
 
@@ -55,7 +55,7 @@ namespace SmartWait
 
         public WaitBuilder<T> SetNotIgnoredExceptionType(Type type, params Type[] types)
         {
-            var typesList = new List<Type>(types) {type};
+            var typesList = new List<Type>(types) { type };
             return SetNotIgnoredExceptionType(typesList);
         }
         public Wait<T> Build() => _wait;

@@ -1,5 +1,5 @@
-using System;
 using SmartWait.ExceptionHandler;
+using System;
 
 namespace SmartWait
 {

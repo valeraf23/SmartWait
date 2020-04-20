@@ -1,5 +1,5 @@
-﻿using System;
-using SmartWait.StepDelayImplementation.StepsDelayStrategies;
+﻿using SmartWait.StepDelayImplementation.StepsDelayStrategies;
+using System;
 
 namespace SmartWait.StepDelayImplementation
 {

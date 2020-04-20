@@ -1,8 +1,8 @@
-﻿using System;
+﻿using NUnit.Framework;
+using SmartWait.ExceptionHandler;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using SmartWait.ExceptionHandler;
 
 namespace SmartWait.Tests
 {

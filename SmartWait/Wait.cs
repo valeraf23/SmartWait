@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SmartWait.ExceptionHandler;
+using SmartWait.StepDelayImplementation;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using SmartWait.ExceptionHandler;
-using SmartWait.StepDelayImplementation;
 
 namespace SmartWait
 {
@@ -11,12 +11,12 @@ namespace SmartWait
     {
         public ExceptionHandling ExceptionHandling { get; set; }
         public event Action<TimeSpan> CallbackIfWaitSuccessful;
-        public Func<int,TimeSpan>? _step;
+        private Func<int, TimeSpan>? _step;
         public readonly Func<T> Factory;
         public TimeSpan MaxWaitTime;
         public IList<Type> NotIgnoredExceptionType = new List<Type>();
 
-        public Func<int,TimeSpan> Step
+        public Func<int, TimeSpan> Step
         {
             get { return _step ??= _ => new CalculateStepDelay(MaxWaitTime).CalculateDefaultStepWaiter(); }
             set => _step = value;
@@ -29,8 +29,6 @@ namespace SmartWait
             ExceptionHandling = ExceptionHandling.ThrowPredefined;
             CallbackIfWaitSuccessful = span => { };
         }
-
-
 
         public T For(Func<T, bool> waitCondition, string timeoutMessage)
         {

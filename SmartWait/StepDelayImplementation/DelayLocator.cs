@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SmartWait.StepDelayImplementation.StepsDelayStrategies;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmartWait.StepDelayImplementation.StepsDelayStrategies;
 
 namespace SmartWait.StepDelayImplementation
 {
@@ -13,7 +13,7 @@ namespace SmartWait.StepDelayImplementation
         public void Register(ICollection<IWaitStep> waitStep) => Mapping.AddRange(waitStep);
 
         public void Register(IWaitStep waitStep, params IWaitStep[] waitSteps) =>
-            Mapping.AddRange(new List<IWaitStep>(waitSteps) {waitStep});
+            Mapping.AddRange(new List<IWaitStep>(waitSteps) { waitStep });
 
         public TimeSpan GetStep() => Mapping.First(mapping => mapping.IsValid()).GetStep();
     }
