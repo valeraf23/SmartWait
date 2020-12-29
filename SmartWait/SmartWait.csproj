@@ -1,17 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netstandard2.1</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <LangVersion>9.0</LangVersion>
     <Company>VF</Company>
     <Authors>Valerii Fedorenko</Authors>
     <Description>Each SmartWait  instance defines the maximum amount of time to wait for a condition, as well as the frequency with which to check the condition. Furthermore, the user may configure the wait to ignore specific types of exceptions whilst waiting</Description>
-    <Version>1.1.0</Version>
+    <Version>2.0.0</Version>
     <PackageProjectUrl>https://github.com/valeraf23/SmartWait</PackageProjectUrl>
     <PackageTags>SmartWait FluentWait Fluent Wait Smart Wait</PackageTags>
-    <PackageReleaseNotes>netcore3.1 netstandard2.1</PackageReleaseNotes>
+    <PackageReleaseNotes>-net5
+-fluent
+</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/valeraf23/SmartWait</RepositoryUrl>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,68 +1,39 @@
-﻿using SmartWait.ExceptionHandler;
-using SmartWait.StepDelayImplementation;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
+using System.Linq.Expressions;
+using SmartWait.Results;
+using SmartWait.Results.FailureTypeResults;
+using SmartWait.WaitSteps;
 
 namespace SmartWait
 {
     public sealed class Wait<T>
     {
-        public ExceptionHandling ExceptionHandling { get; set; }
-        public event Action<TimeSpan> CallbackIfWaitSuccessful;
-        private Func<int, TimeSpan>? _step;
         public readonly Func<T> Factory;
         public TimeSpan MaxWaitTime;
-        public IList<Type> NotIgnoredExceptionType = new List<Type>();
-
-        public Func<int, TimeSpan> Step
-        {
-            get { return _step ??= _ => new CalculateStepDelay(MaxWaitTime).CalculateDefaultStepWaiter(); }
-            set => _step = value;
-        }
+        public List<Type> NotIgnoredExceptionType = new List<Type>();
 
         public Wait(Func<T> factory)
         {
             Factory = factory;
             MaxWaitTime = TimeSpan.FromSeconds(30);
-            ExceptionHandling = ExceptionHandling.ThrowPredefined;
-            CallbackIfWaitSuccessful = span => { };
+            CallbackIfWaitSuccessful = (retryAttempt, span) => { };
+            TimeoutMessage = string.Empty;
         }
 
-        public T For(Func<T, bool> waitCondition, string timeoutMessage)
-        {
-            var waitExceptionHandler = new WaitExceptionHandler(MaxWaitTime, ExceptionHandling);
-            var stopwatch = Stopwatch.StartNew();
-            var retryAttempt = 0;
-            do
-            {
-                try
-                {
-                    var value = Factory();
-                    if (waitCondition(value))
-                    {
-                        CallbackIfWaitSuccessful?.Invoke(stopwatch.Elapsed);
-                        return value;
-                    }
-                }
-                catch (Exception e) when (e.GetType() == NotIgnoredExceptionType?.GetType())
-                {
-                    throw;
-                }
+        public string TimeoutMessage { get; set; }
 
-                catch (Exception e)
-                {
-                    waitExceptionHandler.CreateExceptionMessage(e.Demystify());
-                }
+        public Func<int, TimeSpan> Step { get; set; } = new LogarithmStep(Time.FromSeconds).Invoke;
+        public event Action<int, TimeSpan> CallbackIfWaitSuccessful;
 
-                retryAttempt++;
-                Thread.Sleep(Step(retryAttempt));
-            } while (stopwatch.Elapsed < MaxWaitTime);
-
-            waitExceptionHandler.ThrowException(timeoutMessage);
-            return Factory();
-        }
+        public Result<T, FailureResult> For(Expression<Func<T, bool>> waitCondition) => WaitEngine.Execute(
+                Factory,
+                waitCondition,
+                MaxWaitTime,
+                Step,
+                TimeoutMessage,
+                NotIgnoredExceptionType,
+                CallbackIfWaitSuccessful);
 
         public static WaitBuilder<T> CreateBuilder(Func<T> factory) => new WaitBuilder<T>(factory);
     }

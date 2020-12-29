@@ -1,6 +1,12 @@
-﻿using NUnit.Framework;
-using SmartWait.ExceptionHandler;
+﻿using FluentAssertions;
+using NUnit.Framework;
+using SmartWait.Results;
+using SmartWait.Results.FailureTypeResults;
+using SmartWait.WaitSteps;
 using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,175 +16,315 @@ namespace SmartWait.Tests
     [Parallelizable(ParallelScope.Children)]
     internal class WaitForTest
     {
+        private const string DefaultTimeOutMessage = "Fail";
+
         [Test]
-        public void WaitTrue()
+        public void Condition_Success()
         {
             //Arrange
-            bool Expected() => 3 > 1;
+            static bool Expected() => 3 > 1;
+
             var actual = false;
+
             //Act
             Task.Run(() => { actual = Do(Expected); });
+
             //Assert
-            WaitFor.Condition(() => actual, "Fail");
+            WaitFor.Condition(() => actual, DefaultTimeOutMessage);
+            Assert.Pass();
         }
 
         [Test]
-        public void WaitTrueWithRetryCount()
+        public void Condition_RetryCount()
         {
             //Arrange
-            bool Expected() => 3 > 1;
+            const int expectedIncrement = 100;
+            var actualIncrement = 0;
+
+            bool Expected()
+            {
+                actualIncrement++;
+                return false;
+            }
+
+            //Act
+            WaitFor.Condition(Expected, DefaultTimeOutMessage, expectedIncrement);
+
+            //Assert
+            actualIncrement.Should().Be(expectedIncrement);
+        }
+
+        [Test]
+        public void Condition_WaitConditionalException_Rise()
+        {
+            //Arrange
+            var timeLimit = TimeSpan.FromSeconds(5);
+
+            static bool Expected() => 3 > 4;
+
             var actual = false;
-            //Act
-            Task.Run(() => { actual = Do(Expected); });
-            //Assert
-            WaitFor.Condition(() => actual, "Fail", 100);
-        }
 
-        [Test]
-        public void WaitException()
-        {
-            //Arrange
-            bool Expected() => 3 > 4;
-            var actual = false;
             //Act
             Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
+            Action act = () => WaitFor.Condition(() => actual, DefaultTimeOutMessage, timeLimit);
+
             //Assert
-            Assert.That(() => WaitFor.Condition(() => actual, "Fail", TimeSpan.FromSeconds(5)),
-                Throws.TypeOf<WaitConditionalException>());
+            act.Should().Throw<WaitConditionalException>().WithMessage(
+                $"Timeout after {timeLimit.Seconds} second(s): {DefaultTimeOutMessage}" +
+                $"{Environment.NewLine}Expected: x => (False == x), but was True");
         }
 
         [Test]
-        public void WaitProperlyValueForValueType()
+        public void Catch_NotIgnored_Exception()
         {
             //Arrange
-            int Expected() => 3;
+            static bool Expected() => throw new ArgumentException("ArgumentException");
+
+            Action act = () => WaitFor.Condition(Expected,
+                buildWaiter => buildWaiter.SetNotIgnoredExceptionType<ArgumentException>().Build(),
+                DefaultTimeOutMessage);
+
+            //Assert
+            act.Should().Throw<ArgumentException>();
+        }
+
+        [Test]
+        public void Catch_Ignored_Exception()
+        {
+            //Arrange
+            static bool Expected() => throw new ArgumentException("ArgumentException");
+
+            Action act = () => WaitFor.Condition(Expected, DefaultTimeOutMessage);
+
+            //Assert
+            act.Should().Throw<WaitConditionalException>().And.Message.Should().Contain(nameof(ArgumentException)).And
+                .Contain(DefaultTimeOutMessage);
+        }
+
+        [Test]
+        public void For_Success()
+        {
+            //Arrange
+            static int Expected() => 3;
+
             var actual = 0;
+
             //Act
             Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
+
             //Assert
-            var res = WaitFor.For(() => actual).Become(a => a == 3, "Fail");
-            Assert.AreEqual(3, res);
+            var res = WaitFor.For(() => actual).Become(a => a == 3).OnFailure(_ => 0);
+            res.Should().Be(3);
         }
 
         [Test]
-        public void IfNotReturnActual()
+        public void For_Failure()
         {
             //Arrange
-            int Expected() => 3;
+            static int Expected() => 3;
+
             var actual = 0;
+
+            //Act
+            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(1)); });
+
+            //Assert
+            var res = WaitFor.For(() => actual)
+                .Become(a => a == 4)
+                .OnFailure(_ => 0);
+
+            res.Should().Be(0);
+        }
+
+        [Test]
+        public void For_Success_Return_New_Type()
+        {
+            //Arrange
+            static int Expected() => 3;
+
+            var actual = 0;
+
             //Act
             Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
+            var res = WaitFor.For(() => actual).Become(a => a == 3)
+                .OnSuccess(x => x.ToString())
+                .OnFailureThrowException();
+
             //Assert
+            res.Should().BeEquivalentTo(3.ToString());
+        }
+
+        [Test]
+        public void For_Failure_With_Condition()
+        {
+            //Arrange
+            static int Expected() => 3;
+
+            var actual = 0;
+
+            //Act
+            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
+            var res = WaitFor.For(() => actual)
+                .Become(a => a == 5)
+                .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
+                .OnFailure(_ => -2);
+
+            //Assert
+            res.Should().Be(1);
+        }
+
+        [Test]
+        public void For_Failure_Return_ActuallyValue()
+        {
+            //Arrange
+            static int Expected() => 3;
+
+            var actual = 0;
+
+            //Act
+            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
             var res = WaitFor.For(() => actual,
-                    w => w.SetExceptionHandling(ExceptionHandling.Ignore)
+                    w => w
                         .SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
-                .Become(a => a == 5, "Fail");
-            Assert.AreEqual(3, res);
+                .Become(a => a == 5);
+            var notExpectedResult = Assertion.AssertFailure<int, NotExpectedValue<int>>(res);
+
+            //Assert
+            notExpectedResult.ActuallyValue.Should().Be(3);
         }
 
         [Test]
-        public void WaitProperlyValueForRefType()
+        public void For_Success_Return_ActuallyValue()
         {
             //Arrange
-            SomeClass Expected() => new SomeClass
-            {
-                A = 3,
-                SomeClassA = new SomeClassA
-                {
-                    A1 = 1
-                }
-            };
+            static int Expected() => 3;
 
-            SomeClass actual = null;
+            var actual = 0;
 
             //Act
             Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
+            var res = WaitFor.For(() => actual,
+                    w => w.SetLogarithmStep(Time.FromSeconds).Build())
+                .Become(a => a == 3).OnFailureThrowException();
+
             //Assert
-            var res = WaitFor.For(() => actual).Become(a => a.SomeClassA.A1 == 1 && a.A == 3, "Fail");
-            Assert.AreEqual(3, res.A);
+            res.Should().Be(3);
         }
 
         [Test]
-        public void WaitExceptionValueForRefType()
+        public void For_Success_For_Classes()
         {
             //Arrange
-            SomeClass Expected() => new SomeClass
+            static SomeClass Expected() => new SomeClass
             {
-                A = 3,
-                SomeClassA = new SomeClassA
+                SomeNumber = 3,
+                Child = new OtherClass
                 {
-                    A1 = 5
+                    SomeNumber = 1
                 }
             };
 
-            SomeClass actual = null;
+            SomeClass actual = default;
+
             //Act
             Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-            //Assert
-            Assert.That(() => WaitFor.For(() => actual).Become(a => a.SomeClassA.A1 == 1 && a.A == 3, "Fail"),
-                Throws.TypeOf<WaitConditionalException>());
-        }
-
-        [Test]
-        public void CatchNotIgnoredException()
-        {
-            //Arrange
-            bool Expected() => throw new ArgumentException("ArgumentException");
+            var res = WaitFor.For(() => actual).Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
+                .OnFailureThrowException();
 
             //Assert
-            Assert.That(() => WaitFor.Condition<ArgumentException>(Expected, ""),
-                Throws.TypeOf<ArgumentException>());
+            res.SomeNumber.Should().Be(3);
+            res.Child.SomeNumber.Should().Be(1);
         }
 
         [Test]
-        public void CatchIgnoredException()
+        public void For_Rise_Exception_For_FailureResult()
         {
             //Arrange
-            bool Expected() => throw new ArgumentException("ArgumentException");
+            static SomeClass Expected() => new SomeClass
+            {
+                SomeNumber = 3,
+                Child = new OtherClass
+                {
+                    SomeNumber = 5
+                }
+            };
 
-            Assert.That(() => WaitFor.Condition(Expected, ""),
-                Throws.TypeOf<WaitConditionalException>());
-        }
-
-        [Test]
-        public void WaitExceptionHandling()
-        {
-            //Arrange
-            var i = 0;
-            const int timeWaitInSec = 5;
+            SomeClass actual = default;
 
             //Act
-            string Expected()
-            {
-                if (i == 0)
-                {
-                    i++;
-                    throw new Exception("Exception: 1");
-                }
+            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
 
-                if (i != 1) return null;
-                i++;
-                throw new Exception("Exception: 2");
-            }
+            Result<SomeClass, FailureResult> Func() => WaitFor.For(() => actual)
+                    .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
+                    .OnFailureThrowException();
 
             //Assert
-            var actualErrorMsg = string.Empty;
-            try
-            {
-                WaitFor.Condition(() => Expected() != null, "Fail", TimeSpan.FromSeconds(timeWaitInSec),
-                    ExceptionHandling.Collect);
-            }
-            catch (Exception e)
-            {
-                actualErrorMsg = e.Message;
-            }
-
-            var expectedErrorMsg =
-                $"Timeout after {timeWaitInSec} seconds: Fail. Exceptions During Wait: ( Exception: 1\r\nException: 2\r\n )";
-            Assert.AreEqual(actualErrorMsg, expectedErrorMsg);
+            Assert.That(Func, Throws.TypeOf<WaitConditionalException>());
         }
 
-        #region Methods and Test DTO
+        [Test]
+        public void Exceptions_Should_Has_Json_View()
+        {
+            //Arrange
+            const int exceptionRiseCount = 4;
+            var interaction = 0;
+            const int timeWaitInSec = 10;
+
+            //Act
+            string Sut()
+            {
+                if (interaction > exceptionRiseCount) throw new Exception("Exception: 2");
+                interaction++;
+                throw new ArgumentException("ArgumentException: 1");
+            }
+
+            var result = WaitFor.For(Sut, b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).Build())
+                .Become(x => x != null);
+
+            //Assert
+            var failureResult = Assertion.AssertFailure<string, ExceptionsHappened>(result);
+
+            Assertion.For(() =>
+            {
+                var actualErrorMsg = failureResult.ToString();
+                ValidateJson(actualErrorMsg).Should().BeTrue($"Expected Json representation {actualErrorMsg}");
+                failureResult.Exceptions.Should().HaveCount(2);
+                var firstException = failureResult.Exceptions.First();
+                firstException.Counter.Should().Be(exceptionRiseCount);
+                var exceptionContent = firstException.Content;
+                exceptionContent.Exception.Should().BeOfType<ArgumentException>();
+                exceptionContent.CallStack.Should().NotBeNullOrEmpty();
+            });
+        }
+
+        [Test]
+        public void Exceptions_Should_Has_Json_View1()
+        {
+            //Arrange
+            const int timeWaitInSec = 1;
+            const int act = 3;
+
+            var timeOutMsg = $"Fail {nameof(Exceptions_Should_Has_Json_View1)}";
+            Expression<Func<int, bool>> predicate = x => x == 4;
+            var expectedErrorMsg = @$"Timeout after {timeWaitInSec} second(s): {timeOutMsg}{Environment.NewLine}" +
+                                   $"Expected: {ExpressionExtension.Get(predicate)}, but was {act}";
+
+            //Act
+            int Sut() => act;
+
+            var result = WaitFor.For(Sut,
+                    b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).SetTimeOutMessage(timeOutMsg).Build())
+                .Become(predicate);
+
+            //Assert
+            var failureResult = Assertion.AssertFailure<int, NotExpectedValue<int>>(result);
+
+            Assertion.For(() =>
+            {
+                failureResult.ActuallyValue.Should().Be(3);
+                failureResult.ToString().Should().BeEquivalentTo(expectedErrorMsg);
+            });
+        }
 
         private static T Do<T>(Func<T> act, TimeSpan time)
         {
@@ -187,22 +333,32 @@ namespace SmartWait.Tests
             return act();
         }
 
-        private static T Do<T>(Func<T> act)
-        {
-            return Do(act, TimeSpan.FromSeconds(3));
-        }
+        private static T Do<T>(Func<T> act) => Do(act, TimeSpan.FromSeconds(3));
 
         private class SomeClass
         {
-            public int A { get; set; }
-            public SomeClassA SomeClassA { get; set; }
+            public int SomeNumber { get; set; }
+            public OtherClass Child { get; set; }
         }
 
-        private class SomeClassA
+        private class OtherClass
         {
-            public int A1 { get; set; }
+            public int SomeNumber { get; set; }
         }
 
-        #endregion
+        public static bool ValidateJson(string s)
+        {
+            try
+            {
+                JsonDocument.Parse(s);
+                return true;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return false;
+        }
     }
 }
