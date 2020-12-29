@@ -1,5 +1,5 @@
-using System;
 using SmartWait.Results;
+using System;
 
 namespace SmartWait
 {
@@ -15,26 +15,7 @@ namespace SmartWait
                 builder => builder.SetMaxWaitTime(TimeSpan.FromSeconds(30)).Build(), timeoutMessage);
 
         /// <summary>
-        ///     Wait for some event. Throws exception if event did not appear
-        /// </summary>
-        /// <param name="waitCondition">Method that will return true if event appeared. Wait in stops in case of true</param>
-        /// <param name="timeoutMessage">Error message for exception</param>
-        /// <param name="retryCount"></param>
-        /// <param name="retryInterval"></param>
-        public static void Condition(Func<bool> waitCondition, string timeoutMessage, int retryCount = 5,
-            TimeSpan? retryInterval = null)
-        {
-            if (retryCount <= 0) throw new ArgumentOutOfRangeException(nameof(retryCount));
-            var interval = (retryInterval ?? TimeSpan.FromMilliseconds(100)).TotalMilliseconds;
-            var maxWaitTime = interval * retryCount;
-
-            Wait<bool>.CreateBuilder(() => true).SetMaxWaitTime(TimeSpan.FromMilliseconds(maxWaitTime))
-                .SetTimeBetweenStep(TimeSpan.FromMilliseconds(interval)).SetTimeOutMessage(timeoutMessage).Build()
-                .For(x => waitCondition() == x);
-        }
-
-        /// <summary>
-        ///     Wait for some event. Throws exception if event did not appear
+        ///   Wait for some event. Throws exception if event did not appear
         /// </summary>
         /// <param name="waitCondition">Method that will return true if event appeared. Wait in stops in case of true</param>
         /// <param name="maxWaitTime">Max wait time. Exception will be thrown if event will not appear after this time</param>
@@ -67,6 +48,6 @@ namespace SmartWait
 
         public static Builder<T> For<T>(Func<T> func) => new Builder<T>(func);
 
-        public static Builder<T> For<T>(Func<T> func, Func<WaitBuilder<T>, Wait<T>> buildWaiter) => new Builder<T>(buildWaiter(Wait<T>.CreateBuilder(func)));
+        public static Builder<T> For<T>(Func<T> func, Func<WaitBuilder<T>, Wait<T>> buildWaiter) => new(buildWaiter(Wait<T>.CreateBuilder(func)));
     }
 }

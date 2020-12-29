@@ -35,26 +35,6 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void Condition_RetryCount()
-        {
-            //Arrange
-            const int expectedIncrement = 100;
-            var actualIncrement = 0;
-
-            bool Expected()
-            {
-                actualIncrement++;
-                return false;
-            }
-
-            //Act
-            WaitFor.Condition(Expected, DefaultTimeOutMessage, expectedIncrement);
-
-            //Assert
-            actualIncrement.Should().Be(expectedIncrement);
-        }
-
-        [Test]
         public void Condition_WaitConditionalException_Rise()
         {
             //Arrange
@@ -215,7 +195,7 @@ namespace SmartWait.Tests
         public void For_Success_For_Classes()
         {
             //Arrange
-            static SomeClass Expected() => new SomeClass
+            static SomeClass Expected() => new()
             {
                 SomeNumber = 3,
                 Child = new OtherClass
@@ -240,7 +220,7 @@ namespace SmartWait.Tests
         public void For_Rise_Exception_For_FailureResult()
         {
             //Arrange
-            static SomeClass Expected() => new SomeClass
+            static SomeClass Expected() => new()
             {
                 SomeNumber = 3,
                 Child = new OtherClass
@@ -337,13 +317,13 @@ namespace SmartWait.Tests
 
         private class SomeClass
         {
-            public int SomeNumber { get; set; }
-            public OtherClass Child { get; set; }
+            public int SomeNumber { get; init; }
+            public OtherClass Child { get; init; }
         }
 
         private class OtherClass
         {
-            public int SomeNumber { get; set; }
+            public int SomeNumber { get; init; }
         }
 
         public static bool ValidateJson(string s)

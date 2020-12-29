@@ -11,13 +11,13 @@ namespace SmartWait
     {
         public readonly Func<T> Factory;
         public TimeSpan MaxWaitTime;
-        public List<Type> NotIgnoredExceptionType = new List<Type>();
+        public List<Type> NotIgnoredExceptionType = new();
 
         public Wait(Func<T> factory)
         {
             Factory = factory;
             MaxWaitTime = TimeSpan.FromSeconds(30);
-            CallbackIfWaitSuccessful = (retryAttempt, span) => { };
+            CallbackIfWaitSuccessful = (_, _) => { };
             TimeoutMessage = string.Empty;
         }
 
@@ -35,6 +35,6 @@ namespace SmartWait
                 NotIgnoredExceptionType,
                 CallbackIfWaitSuccessful);
 
-        public static WaitBuilder<T> CreateBuilder(Func<T> factory) => new WaitBuilder<T>(factory);
+        public static WaitBuilder<T> CreateBuilder(Func<T> factory) => new(factory);
     }
 }

@@ -9,25 +9,22 @@ namespace SmartWait.Results.FailureTypeResults
     {
         private readonly List<ExceptionCounter> _exceptions;
 
-        public ExceptionsHappened(double totalSeconds, string timeoutMessage, List<Exception> exceptions) :
+        public ExceptionsHappened(double totalSeconds, string timeoutMessage, IEnumerable<Exception> exceptions) :
             base(totalSeconds, timeoutMessage) => _exceptions = ToExceptionCounter(exceptions);
 
         public IReadOnlyCollection<ExceptionCounter> Exceptions => _exceptions;
 
         private static List<ExceptionCounter> ToExceptionCounter(IEnumerable<Exception> exceptions)
         {
-            List<ExceptionCounter> exceptionCounters = new List<ExceptionCounter>();
+            List<ExceptionCounter> exceptionCounters = new();
             foreach (var exception in exceptions)
             {
-                ExceptionContent content = new ExceptionContent(exception);
+                ExceptionContent content = new(exception);
                 var exist = exceptionCounters.FirstOrDefault(x => x.Content == content);
                 if (exist != null)
                     exist.Counter++;
                 else
-                    exceptionCounters.Add(new ExceptionCounter
-                    {
-                        Content = content
-                    });
+                    exceptionCounters.Add(new ExceptionCounter(content));
             }
 
             return exceptionCounters;

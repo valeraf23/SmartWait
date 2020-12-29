@@ -25,7 +25,7 @@ namespace SmartWait
             var retryAttempt = 0;
 
             TSuccessResult value = default;
-            List<Exception> ex = new List<Exception>();
+            List<Exception> ex = new();
             var wc = waitCondition.Compile();
 
             do

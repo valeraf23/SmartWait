@@ -7,7 +7,7 @@ namespace SmartWait
 {
     public class WaitBuilder<T>
     {
-        private readonly Dictionary<string, Action> _actions = new Dictionary<string, Action>();
+        private readonly Dictionary<string, Action> _actions = new();
         private readonly Wait<T> _wait;
 
         public WaitBuilder(Func<T> factory) => _wait = new Wait<T>(factory);
