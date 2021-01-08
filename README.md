@@ -43,7 +43,7 @@ WaitFor.Condition(waitCondition, builder=>builder
                     w => w.SetLogarithmStep(Time.FromSeconds).Build())
                    .Become(a => a == 3)
                    .OnFailureThrowException();
-    ```                
+  ```                
  #### Aslo you can use you custom algoritm for delay steps    
  
  ```csharp                
