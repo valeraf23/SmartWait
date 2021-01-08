@@ -25,12 +25,28 @@ WaitFor.Condition(waitCondition, builder=>builder
                                    .SetCallbackForSuccessful(callback)
                                    .SetNotIgnoredExceptionType(notIgnoredExceptionType)
                                    .Build()
-                     ,timeoutMessage);
+        
+        ,timeoutMessage);
 
-var res = WaitFor.For(() => actual).Become(a => a == 5, "message");
-                                 
-var res = WaitFor.For(() => actual, builder => builder
-                     .SetExceptionHandling(ExceptionHandling.Ignore)
-                     .SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
-                     .Build())
-                     .Become(a => a == 5, "message");
+
+In case when some exeptions happens and we got not expected value we can read information
+
+
+In case when we get no expected value we can set up cases 
+ var result = WaitFor.For(() => 0)
+                .Become(a => a == 5)
+                .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
+                .OnFailure(_ => -2);
+       
+       You can use predefine algoritme like LogarithmStep and ParabolaStep which calculate delay steps
+ var res = WaitFor.For(() => actual,
+                    w => w.SetLogarithmStep(Time.FromSeconds).Build())
+                   .Become(a => a == 3)
+                   .OnFailureThrowException();
+                   
+           Aslo you can use you custom algoritm for delay steps        
+                   var res = WaitFor.For(() => actual,
+                    w => w
+                        .SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
+                .Become(a => a == 5);
+```
