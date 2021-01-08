@@ -51,3 +51,4 @@ In case when we get no expected value we can set up cases for the value that we 
       var res = WaitFor.For(() => actual, b => b.SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
                 .Become(a => a == 5);
 ```
+for **additional information** look in [Tests Cases](https://github.com/valeraf23/SmartWait/blob/master/SmartWait.Tests/WaitForTest.cs)
