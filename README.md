@@ -30,8 +30,8 @@ WaitFor.Condition(waitCondition, builder=>builder
 #### In case when some exceptions happen and we got not expected value we can read information about a number of exceptions and where it happened
 ![Screenshot](https://user-images.githubusercontent.com/6804802/103993612-8bf98400-519e-11eb-9a95-5e93451b9cfe.png)
 
-**  In case when you use `WaitFor.For` this function wait until the specified condition is met and return the value that we expected
-In case when we get no expected value we can set up cases for the value that we want to return **
+**In case when you use `WaitFor.For` this function wait until the specified condition is met and return the value that we expected
+In case when we get no expected value we can set up cases for the value that we want to return**
 ```csharp
  var result = WaitFor.For(() => 0)
                 .Become(a => a == 5)
