@@ -30,7 +30,7 @@ WaitFor.Condition(waitCondition, builder=>builder
 
 
 In case when some exeptions happens and we got not expected value we can read information
-
+https://github.com/valeraf23/SmartWait/issues/1#issue-781952867
 
 In case when we get no expected value we can set up cases 
  var result = WaitFor.For(() => 0)
