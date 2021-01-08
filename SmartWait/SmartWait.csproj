@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.1.4" />
+    <PackageReference Include="Ben.Demystifier" Version="0.3.0" />
   </ItemGroup>
 
 </Project>
