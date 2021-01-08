@@ -15,7 +15,7 @@ Install-Package SmartWait
 dotnet add package SmartWait
 ```
 ## Example:
-
+![Screenshot](https://user-images.githubusercontent.com/6804802/103993612-8bf98400-519e-11eb-9a95-5e93451b9cfe.png)
 ```csharp
 WaitFor.Condition(waitCondition, timeoutMessage);
                      
@@ -30,7 +30,7 @@ WaitFor.Condition(waitCondition, builder=>builder
 
 
 In case when some exeptions happens and we got not expected value we can read information
-![In a single picture](https://user-images.githubusercontent.com/6804802/103993612-8bf98400-519e-11eb-9a95-5e93451b9cfe.png)
+
 
 In case when we get no expected value we can set up cases 
  var result = WaitFor.For(() => 0)
