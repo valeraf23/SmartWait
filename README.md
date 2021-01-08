@@ -20,33 +20,33 @@ WaitFor.Condition(waitCondition, timeoutMessage);
                      
 WaitFor.Condition(waitCondition, builder=>builder
                                    .SetMaxWaitTime(maxWaitTime)
-                                   .SetExceptionHandling(exceptionHandling)
                                    .SetCallbackForSuccessful(callback)
                                    .SetNotIgnoredExceptionType(notIgnoredExceptionType)
                                    .Build()
         
         ,timeoutMessage);
 
-
-In case when some exeptions happens and we got not expected value we can read information
 ```
+#### In case when some exeptions happens and we got not expected value we can read information
 ![Screenshot](https://user-images.githubusercontent.com/6804802/103993612-8bf98400-519e-11eb-9a95-5e93451b9cfe.png)
+
+#### In case when we get no expected value we can set up cases 
 ```csharp
-In case when we get no expected value we can set up cases 
  var result = WaitFor.For(() => 0)
                 .Become(a => a == 5)
                 .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
                 .OnFailure(_ => -2);
-       
-       You can use predefine algoritme like LogarithmStep and ParabolaStep which calculate delay steps
+  ```     
+  ####  You can use predefine algoritme like LogarithmStep and ParabolaStep which calculate delay steps
+  ```csharp
  var res = WaitFor.For(() => actual,
                     w => w.SetLogarithmStep(Time.FromSeconds).Build())
                    .Become(a => a == 3)
                    .OnFailureThrowException();
-                   
-           Aslo you can use you custom algoritm for delay steps        
-                   var res = WaitFor.For(() => actual,
-                    w => w
-                        .SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
+    ```                
+ #### Aslo you can use you custom algoritm for delay steps    
+ 
+ ```csharp                
+      var res = WaitFor.For(() => actual, b => b.SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
                 .Become(a => a == 5);
 ```
