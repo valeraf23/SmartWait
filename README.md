@@ -22,29 +22,30 @@ WaitFor.Condition(waitCondition, builder=>builder
                                    .SetMaxWaitTime(maxWaitTime)
                                    .SetCallbackForSuccessful(callback)
                                    .SetNotIgnoredExceptionType(notIgnoredExceptionType)
-                                   .Build()
-        
-        ,timeoutMessage);
-
+                                   .Build(), timeoutMessage);
 ```
-#### In case when some exeptions happens and we got not expected value we can read information
+#### In case when you use 'WaitFor.Condition' if the given condition is not met will be rise exception  
+![Screenshot](https://user-images.githubusercontent.com/6804802/103995129-b1878d00-51a0-11eb-8211-02c9559ff1c4.png)
+
+#### In case when some exceptions happen and we got not expected value we can read information about a number of exceptions and where it happened
 ![Screenshot](https://user-images.githubusercontent.com/6804802/103993612-8bf98400-519e-11eb-9a95-5e93451b9cfe.png)
 
-#### In case when we get no expected value we can set up cases 
+#### In case when you use 'WaitFor.For' this function wait until the specified condition is met and return the value that we expected   
+#### In case when we get no expected value we can set up cases for the value that we want to return 
 ```csharp
  var result = WaitFor.For(() => 0)
                 .Become(a => a == 5)
                 .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
                 .OnFailure(_ => -2);
   ```     
-  ####  You can use predefine algoritme like LogarithmStep and ParabolaStep which calculate delay steps
+  ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
  var res = WaitFor.For(() => actual,
                     w => w.SetLogarithmStep(Time.FromSeconds).Build())
                    .Become(a => a == 3)
                    .OnFailureThrowException();
   ```                
- #### Aslo you can use you custom algoritm for delay steps    
+ #### Also, you can use your custom algorithm for delayed steps   
  
  ```csharp                
       var res = WaitFor.For(() => actual, b => b.SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
