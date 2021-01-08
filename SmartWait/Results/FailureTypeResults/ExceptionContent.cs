@@ -28,8 +28,7 @@ namespace SmartWait.Results.FailureTypeResults
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((ExceptionContent)obj);
+            return obj.GetType() == GetType() && Equals((ExceptionContent)obj);
         }
 
         public static bool operator ==(ExceptionContent? a, ExceptionContent? b) => a is null && b is null ||

@@ -1,7 +1,9 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
+using SmartWait.Core;
 using SmartWait.WaitSteps;
-using System;
 
 namespace SmartWait.Tests
 {
@@ -9,6 +11,18 @@ namespace SmartWait.Tests
     [Parallelizable(ParallelScope.Children)]
     internal class UnitTests
     {
+        [TestCase(WaitSteps.Time.FromHours, 8)]
+        [TestCase(WaitSteps.Time.FromMilliseconds, 8)]
+        [TestCase(WaitSteps.Time.FromMinutes, 8)]
+        [TestCase(WaitSteps.Time.FromSeconds, 8)]
+        public void Time(Time time, int step)
+        {
+            var methodName = time.ToString().Replace("From", "");
+            var methodInfo = typeof(FluentTimeSpanExtensions).GetMethod(methodName, new[] {step.GetType()});
+            var expectedTimeSpan = (TimeSpan) methodInfo.Invoke(null, new object[] {step});
+            time.ToSpan(step).Should().Be(expectedTimeSpan);
+        }
+
         [Test]
         public void LogarithmStep_Argument_Should_be_higher_than_0()
         {

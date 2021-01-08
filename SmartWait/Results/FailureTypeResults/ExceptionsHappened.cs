@@ -9,8 +9,9 @@ namespace SmartWait.Results.FailureTypeResults
     {
         private readonly List<ExceptionCounter> _exceptions;
 
-        public ExceptionsHappened(double totalSeconds, string timeoutMessage, IEnumerable<Exception> exceptions) :
-            base(totalSeconds, timeoutMessage) => _exceptions = ToExceptionCounter(exceptions);
+        public ExceptionsHappened(int retryAttempt, TimeSpan maxWaitTime, TimeSpan stopwatchElapsed,
+            string timeoutMessage, IEnumerable<Exception> exceptions) :
+            base(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage) => _exceptions = ToExceptionCounter(exceptions);
 
         public IReadOnlyCollection<ExceptionCounter> Exceptions => _exceptions;
 

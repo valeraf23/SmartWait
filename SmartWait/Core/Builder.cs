@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using SmartWait.Results;
 using SmartWait.Results.FailureTypeResults;
 
-namespace SmartWait
+namespace SmartWait.Core
 {
     public readonly struct Builder<T>
     {

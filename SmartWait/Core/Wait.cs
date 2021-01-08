@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using SmartWait.Results;
+﻿using SmartWait.Results;
 using SmartWait.Results.FailureTypeResults;
 using SmartWait.WaitSteps;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
-namespace SmartWait
+namespace SmartWait.Core
 {
     public sealed class Wait<T>
     {
         public readonly Func<T> Factory;
         public TimeSpan MaxWaitTime;
         public List<Type> NotIgnoredExceptionType = new();
-
+       
         public Wait(Func<T> factory)
         {
             Factory = factory;
@@ -22,7 +22,6 @@ namespace SmartWait
         }
 
         public string TimeoutMessage { get; set; }
-
         public Func<int, TimeSpan> Step { get; set; } = new LogarithmStep(Time.FromSeconds).Invoke;
         public event Action<int, TimeSpan> CallbackIfWaitSuccessful;
 

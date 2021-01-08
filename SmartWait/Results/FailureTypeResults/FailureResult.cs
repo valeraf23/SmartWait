@@ -1,33 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq.Expressions;
 
 namespace SmartWait.Results.FailureTypeResults
 {
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public abstract class FailureResult
     {
+        private readonly TimeSpan _maxWaitTime;
+        private readonly int _retryAttempt;
+        private readonly TimeSpan _stopwatchElapsed;
         private readonly string _timeoutMessage;
-        private readonly double _totalSeconds;
 
-        protected FailureResult(double totalSeconds, string timeoutMessage)
+        protected FailureResult(int retryAttempt, TimeSpan maxWaitTime, TimeSpan stopwatchElapsed,
+            string timeoutMessage)
         {
-            _totalSeconds = totalSeconds;
+            _retryAttempt = retryAttempt;
+            _maxWaitTime = maxWaitTime;
+            _stopwatchElapsed = stopwatchElapsed;
             _timeoutMessage = timeoutMessage;
         }
 
-        public static FailureResult Create(double totalSeconds, string timeoutMessage, List<Exception> exceptions) => new ExceptionsHappened(totalSeconds, timeoutMessage, exceptions);
-
-        public static FailureResult Create<T>(double totalSeconds, string timeoutMessage, T actuallyValue,
-            Expression<Func<T, bool>> waitCondition) => new NotExpectedValue<T>(totalSeconds, timeoutMessage, actuallyValue, waitCondition);
+        public static FailureResultBuilder Create(int retryAttempt, TimeSpan maxWaitTime, TimeSpan stopwatchElapsed,
+            string timeoutMessage) => new(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage);
 
         public override string ToString()
         {
             var msg = _timeoutMessage;
             if (!string.IsNullOrEmpty(_timeoutMessage)) msg = $": {_timeoutMessage}";
 
-            return $"Timeout after {_totalSeconds} second(s){msg}";
+            return
+                $"Timeout after {_stopwatchElapsed.TotalSeconds} second(s) and {"number of attempts".ToUpper()} {_retryAttempt} {msg}";
         }
     }
 }

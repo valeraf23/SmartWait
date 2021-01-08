@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartWait.Helpers;
+using System;
 using System.Linq.Expressions;
 
 namespace SmartWait.Results.FailureTypeResults
@@ -8,9 +9,9 @@ namespace SmartWait.Results.FailureTypeResults
         private readonly Expression<Func<T, bool>> _waitCondition;
         public readonly T ActuallyValue;
 
-        public NotExpectedValue(double totalSeconds, string timeoutMessage, T actuallyValue,
-            Expression<Func<T, bool>> waitCondition) : base(totalSeconds,
-            timeoutMessage)
+        public NotExpectedValue(int retryAttempt, TimeSpan maxWaitTime, TimeSpan stopwatchElapsed,
+            string timeoutMessage, T actuallyValue,
+            Expression<Func<T, bool>> waitCondition) : base(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage)
         {
             ActuallyValue = actuallyValue;
             _waitCondition = waitCondition;

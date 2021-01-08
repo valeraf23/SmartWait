@@ -1,14 +1,14 @@
-﻿using System;
+﻿using SmartWait.Results;
+using SmartWait.Results.FailureTypeResults;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using SmartWait.Results;
-using SmartWait.Results.FailureTypeResults;
 
-namespace SmartWait
+namespace SmartWait.Core
 {
     internal static class WaitEngine
     {
@@ -21,13 +21,11 @@ namespace SmartWait
             IList<Type> notIgnoredExceptionType,
             Action<int, TimeSpan> callbackIfWaitSuccessful)
         {
-            var stopwatch = Stopwatch.StartNew();
             var retryAttempt = 0;
-
             TSuccessResult value = default;
             List<Exception> ex = new();
             var wc = waitCondition.Compile();
-
+            var stopwatch = Stopwatch.StartNew();
             do
             {
                 try
@@ -49,13 +47,22 @@ namespace SmartWait
                     ex.Add(e);
                 }
 
-                retryAttempt++;
-                Thread.Sleep(stepEngine.Invoke(retryAttempt));
-            } while (stopwatch.Elapsed < maxWaitTime);
+                if (retryAttempt < int.MaxValue) retryAttempt++;
 
-            return ex.Any()
-                ? FailureResult.Create(maxWaitTime.TotalSeconds, timeoutMessage, ex)
-                : FailureResult.Create(maxWaitTime.TotalSeconds, timeoutMessage, value, waitCondition);
+                var sleep = stepEngine.Invoke(retryAttempt);
+                var stopwatchElapsed = stopwatch.Elapsed;
+                var canRetry = stopwatch.Elapsed < maxWaitTime;
+                if (!canRetry)
+                {
+                    var baseFailureResult =
+                        FailureResult.Create(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage);
+                    return ex.Any()
+                        ? baseFailureResult.WhenExceptions(ex)
+                        : baseFailureResult.WhenNotExpectedValue(value, waitCondition!);
+                }
+
+                Thread.Sleep(sleep);
+            } while (true);
         }
     }
 }

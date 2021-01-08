@@ -1,6 +1,6 @@
 using System;
 
-namespace SmartWait
+namespace SmartWait.Core
 {
     public sealed class WaitConditionalException : Exception
     {

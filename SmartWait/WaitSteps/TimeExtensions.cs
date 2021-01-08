@@ -10,7 +10,7 @@ namespace SmartWait.WaitSteps
             Time.FromMilliseconds => TimeSpan.FromMilliseconds(step),
             Time.FromSeconds => TimeSpan.FromSeconds(step),
             Time.FromMinutes => TimeSpan.FromMinutes(step),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(time.ToString())
         };
     }
 }

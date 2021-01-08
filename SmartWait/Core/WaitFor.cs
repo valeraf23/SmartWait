@@ -1,7 +1,7 @@
-using SmartWait.Results;
 using System;
+using SmartWait.Results.Extension;
 
-namespace SmartWait
+namespace SmartWait.Core
 {
     public static class WaitFor
     {
@@ -46,7 +46,7 @@ namespace SmartWait
                 .For(x => waitCondition() == x).OnFailureThrowException();
         }
 
-        public static Builder<T> For<T>(Func<T> func) => new Builder<T>(func);
+        public static Builder<T> For<T>(Func<T> func) => new(func);
 
         public static Builder<T> For<T>(Func<T> func, Func<WaitBuilder<T>, Wait<T>> buildWaiter) => new(buildWaiter(Wait<T>.CreateBuilder(func)));
     }

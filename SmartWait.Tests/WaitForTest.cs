@@ -1,9 +1,12 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using SmartWait.Core;
 using SmartWait.Results;
+using SmartWait.Results.Extension;
 using SmartWait.Results.FailureTypeResults;
 using SmartWait.WaitSteps;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
@@ -49,9 +52,9 @@ namespace SmartWait.Tests
             Action act = () => WaitFor.Condition(() => actual, DefaultTimeOutMessage, timeLimit);
 
             //Assert
-            act.Should().Throw<WaitConditionalException>().WithMessage(
-                $"Timeout after {timeLimit.Seconds} second(s): {DefaultTimeOutMessage}" +
-                $"{Environment.NewLine}Expected: x => (False == x), but was True");
+            act.Should().Throw<WaitConditionalException>().And.Message.Should()
+                .Contain(DefaultTimeOutMessage).And
+                .Contain("Expected: x => (False == x), but was True");
         }
 
         [Test]
@@ -278,32 +281,37 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void Exceptions_Should_Has_Json_View1()
+        public void NotExpectedValue_Should_Contain_ActuallyValue()
         {
             //Arrange
             const int timeWaitInSec = 1;
             const int act = 3;
-
-            var timeOutMsg = $"Fail {nameof(Exceptions_Should_Has_Json_View1)}";
+            var timeOutMsg = $"Fail {nameof(NotExpectedValue_Should_Contain_ActuallyValue)}";
             Expression<Func<int, bool>> predicate = x => x == 4;
-            var expectedErrorMsg = @$"Timeout after {timeWaitInSec} second(s): {timeOutMsg}{Environment.NewLine}" +
-                                   $"Expected: {ExpressionExtension.Get(predicate)}, but was {act}";
 
             //Act
-            int Sut() => act;
+            static int Sut() => act;
 
             var result = WaitFor.For(Sut,
                     b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).SetTimeOutMessage(timeOutMsg).Build())
                 .Become(predicate);
-
             //Assert
             var failureResult = Assertion.AssertFailure<int, NotExpectedValue<int>>(result);
 
-            Assertion.For(() =>
-            {
-                failureResult.ActuallyValue.Should().Be(3);
-                failureResult.ToString().Should().BeEquivalentTo(expectedErrorMsg);
-            });
+            failureResult.ActuallyValue.Should().Be(3);
+        }
+
+        [TestCase(30)]
+        [TestCase(2)]
+        [TestCase(5)]
+        [TestCase(10)]
+        [TestCase(60)]
+        public void MaxTime_Should_be_Close_To_Actual(int sec)
+        {
+            var maxTime = TimeSpan.FromSeconds(sec);
+            var stopwatch = Stopwatch.StartNew();
+            WaitFor.For(() => 5, b => b.SetMaxWaitTime(maxTime).Build()).Become(x => x == 6);
+            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(maxTime);
         }
 
         private static T Do<T>(Func<T> act, TimeSpan time)

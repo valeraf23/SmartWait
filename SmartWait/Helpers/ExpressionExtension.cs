@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace SmartWait.Results
+namespace SmartWait.Helpers
 {
     public static class ExpressionExtension
     {

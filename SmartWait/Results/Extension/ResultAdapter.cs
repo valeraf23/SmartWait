@@ -1,7 +1,8 @@
 ﻿using System;
+using SmartWait.Core;
 using SmartWait.Results.FailureTypeResults;
 
-namespace SmartWait.Results
+namespace SmartWait.Results.Extension
 {
     public static class ResultAdapter
     {
@@ -29,19 +30,16 @@ namespace SmartWait.Results
         public static Result<TSuccess, TFailure> OnSuccess<TSuccess, TFailure>(this Result<TSuccess, TFailure> result,
             Action<TSuccess> map)
         {
-            if (result is Success<TSuccess, TFailure> success)
-            {
-                map(success);
-                return success;
-            }
+            if (result is not Success<TSuccess, TFailure> success) return result;
+            map(success);
+            return success;
 
-            return result;
         }
 
         public static Result<TSuccess, TFailure> OnFailure<TSuccess, TFailure>(this Result<TSuccess, TFailure> result,
             Action<TFailure> map)
         {
-            if (!(result is Failure<TSuccess, TFailure> failure)) return result;
+            if (result is not Failure<TSuccess, TFailure> failure) return result;
             map(failure);
             return failure;
         }

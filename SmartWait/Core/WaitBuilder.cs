@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SmartWait
+namespace SmartWait.Core
 {
     public class WaitBuilder<T>
     {
