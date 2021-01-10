@@ -44,7 +44,7 @@ To do this, you must specify the actions in case of failure using the method `On
  var res = WaitFor.For(() => actual).Become(a => a == 3)
                 .OnSuccess(x => $"New result {x}")
                 .OnFailureThrowException();
-// New result 3 
+// "New result 3"
   ```  
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
