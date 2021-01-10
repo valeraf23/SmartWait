@@ -38,7 +38,14 @@ To do this, you must specify the actions in case of failure using the method `On
                 .Become(a => a == 5)
                 .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
                 .OnFailure(_ => -2);
-  ```     
+  ```  
+**Using the `OnSuccess` method, you can specify actions on the value in case of a successful result**
+  ```csharp
+ var res = WaitFor.For(() => actual).Become(a => a == 3)
+                .OnSuccess(x => $"New result {x}")
+                .OnFailureThrowException();
+// New result 3 
+  ```  
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
  var res = WaitFor.For(() => actual,
