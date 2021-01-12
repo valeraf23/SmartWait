@@ -120,6 +120,26 @@ namespace SmartWait.Tests
         }
 
         [Test]
+        public void For_Failure_OnFailureWhenNotExpectedValue()
+        {
+            //Arrange
+            static int Expected() => 3;
+
+            var actual = 0;
+
+            //Act
+            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(1)); });
+
+            //Assert
+            var res = WaitFor.For(() => actual)
+                .Become(a => a == 4)
+                .OnFailureWhenNotExpectedValue(x => x.ActuallyValue)
+                .OnFailure(_ => 0);
+
+            res.Should().Be(3);
+        }
+
+        [Test]
         public void For_Success_Return_New_Type()
         {
             //Arrange
@@ -278,6 +298,30 @@ namespace SmartWait.Tests
                 exceptionContent.Exception.Should().BeOfType<ArgumentException>();
                 exceptionContent.CallStack.Should().NotBeNullOrEmpty();
             });
+        }
+
+        [Test]
+        public void For_OnFailureWhenWasExceptions()
+        {
+            //Arrange
+            const int exceptionRiseCount = 4;
+            var interaction = 0;
+            const int timeWaitInSec = 10;
+
+            //Act
+            string Sut()
+            {
+                if (interaction > exceptionRiseCount) throw new Exception("Exception: 2");
+                interaction++;
+                throw new ArgumentException("ArgumentException: 1");
+            }
+
+            var failureResult = WaitFor.For(Sut, b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).Build())
+                .Become(x => x != null).OnFailureWhenWasExceptions(x => x.ToString()).OnFailure(_ => "Finish");
+
+            //Assert
+            var actualErrorMsg = failureResult;
+            ValidateJson(actualErrorMsg).Should().BeTrue($"Expected Json representation {actualErrorMsg}");
         }
 
         [Test]
