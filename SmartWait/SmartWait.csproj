@@ -7,15 +7,16 @@
     <Company>VF</Company>
     <Authors>Valerii Fedorenko</Authors>
     <Description>Each SmartWait  instance defines the maximum amount of time to wait for a condition, as well as the frequency with which to check the condition. Furthermore, the user may configure the wait to ignore specific types of exceptions whilst waiting</Description>
-    <Version>2.0.0.4</Version>
+    <Version>2.0.0.5</Version>
     <PackageProjectUrl>https://github.com/valeraf23/SmartWait</PackageProjectUrl>
     <PackageTags>SmartWait FluentWait Fluent Wait Smart Wait</PackageTags>
-    <PackageReleaseNotes>-net5
--fluent
-</PackageReleaseNotes>
+    <PackageReleaseNotes>-WhenNotExpectedValue 
+-DoWhenNotExpectedValue
+-WhenWasExceptions
+-DoWhenWasExceptions</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/valeraf23/SmartWait</RepositoryUrl>
-    <AssemblyVersion>2.0.0.4</AssemblyVersion>
-    <FileVersion>2.0.0.4</FileVersion>
+    <AssemblyVersion>2.0.0.5</AssemblyVersion>
+    <FileVersion>2.0.0.5</FileVersion>
     <PackageIcon>Logo.png</PackageIcon>
   </PropertyGroup>
 
