@@ -52,9 +52,9 @@ To do this, you must specify the actions in case of failure using the method `On
  - due to some exceptions
    - `ExceptionsHappened` type.
 
-We have methods that can help to handle these cases:
-- for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods
-- for ExceptionsHappened — `WhenWasExceptionsand` and `DoWhenWasExceptions`
+**We have methods that can help to handle these cases:**
+- `WhenNotExpectedValue` and `DoWhenNotExpectedValu`
+- `WhenWasExceptionsand` and `DoWhenWasExceptions`
  ```csharp
   var res = WaitFor.For(() => 3)
                 .Become(a => a == 4)
