@@ -49,12 +49,11 @@ To do this, you must specify the actions in case of failure using the method `On
 **Result On Failure can be in two cases:**
  - get not expected value
  - due to some exceptions
-
- In case of Not Expected Value returns `NotExpectedValue<T>` type.
- In the case when exceptions returns `ExceptionsHappened` type.
+In case of Not Expected Value returns `NotExpectedValue<T>` type.
+In the case when exceptions returns `ExceptionsHappened` type.
 We have methods to handle this cases:
 - for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods
-- for ExceptionsHappened -- `WhenWasExceptionsand` and `DoWhenWasExceptions`
+- for ExceptionsHappened — `WhenWasExceptionsand` and `DoWhenWasExceptions`
  ```csharp
   var res = WaitFor.For(() => 3)
                 .Become(a => a == 4)
