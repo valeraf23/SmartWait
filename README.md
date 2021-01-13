@@ -53,7 +53,7 @@ To do this, you must specify the actions in case of failure using the method `On
    - `ExceptionsHappened` type.
 
 **We have methods that can help to handle these cases:**
-- `WhenNotExpectedValue` and `DoWhenNotExpectedValu`
+- `WhenNotExpectedValue` and `DoWhenNotExpectedValue`
 - `WhenWasExceptionsand` and `DoWhenWasExceptions`
  ```csharp
   var res = WaitFor.For(() => 3)
