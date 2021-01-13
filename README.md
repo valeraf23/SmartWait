@@ -64,7 +64,7 @@ Console.WriteLine(res) //3
 
   WaitFor.For(() => 3)
                 .Become(a => a == 4)
-                .DoWhenNotExpectedValue(x => Console.WriteLine("Something goes wrong"))
+                .DoWhenNotExpectedValue(_ => Console.WriteLine("Something goes wrong"))
                 .OnFailure(_ => 0);
   ```    
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
