@@ -13,7 +13,8 @@ namespace SmartWait.Results.Extension
 
         public static Result<TSuccess, FailureResult> WhenNotExpectedValue<TSuccess>(
             this Result<TSuccess, FailureResult> result,
-            [NotNull] Func<NotExpectedValue<TSuccess>, TSuccess> func) => OnFailure(result, func, f => f as NotExpectedValue<TSuccess>);
+            [NotNull] Func<NotExpectedValue<TSuccess>, TSuccess> func) =>
+            OnFailure(result, func, f => f as NotExpectedValue<TSuccess>);
 
         public static Result<TSuccess, FailureResult> DoWhenWasExceptions<TSuccess>(
             this Result<TSuccess, FailureResult> result,
@@ -21,7 +22,8 @@ namespace SmartWait.Results.Extension
 
         public static Result<TSuccess, FailureResult> DoNotExpectedValue<TSuccess>(
             this Result<TSuccess, FailureResult> result,
-            [NotNull] Action<NotExpectedValue<TSuccess>> map) => DoOnFailure(result, map, f => f as NotExpectedValue<TSuccess>);
+            [NotNull] Action<NotExpectedValue<TSuccess>> map) =>
+            DoOnFailure(result, map, f => f as NotExpectedValue<TSuccess>);
 
         private static Result<TSuccess, FailureResult> OnFailure<TSuccess, TNewFailure>(
             this Result<TSuccess, FailureResult> result,
@@ -49,6 +51,7 @@ namespace SmartWait.Results.Extension
             return failure;
         }
 
-        public static TSuccess OnFailureThrowException<TSuccess>(this Result<TSuccess, FailureResult> result) => result.OnFailure(fr => throw new WaitConditionalException(fr.ToString()));
+        public static TSuccess OnFailureThrowException<TSuccess>(this Result<TSuccess, FailureResult> result) =>
+            result.OnFailure(fr => throw new WaitConditionalException(fr.ToString()));
     }
 }
