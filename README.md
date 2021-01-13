@@ -47,13 +47,13 @@ To do this, you must specify the actions in case of failure using the method `On
 // "New result 3"
   ```  
 **Result On Failure can be in two cases:**
- **- get not expected value**
- **- due to some exceptions**
- **In case of Not Expected Value returns `NotExpectedValue<T>` type
+ - get not expected value**
+ - due to some exceptions**
+ In case of Not Expected Value returns `NotExpectedValue<T>` type
  In the case when exceptions returns `ExceptionsHappened` type
 We have methods to handle this cases:
-**- for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods**
-**- for ExceptionsHappened -- `WhenWasExceptionsand` and `DoWhenWasExceptions`** 
+- for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods**
+- for ExceptionsHappened -- `WhenWasExceptionsand` and `DoWhenWasExceptions`
 
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
