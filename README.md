@@ -54,7 +54,7 @@ To do this, you must specify the actions in case of failure using the method `On
 
 **We have methods that can help to handle these cases:**
 - `WhenNotExpectedValue` and `DoWhenNotExpectedValue`
-- `WhenWasExceptionsand` and `DoWhenWasExceptions`
+- `WhenWasExceptions` and `DoWhenWasExceptions`
  ```csharp
   var res = WaitFor.For(() => 3)
                 .Become(a => a == 4)
