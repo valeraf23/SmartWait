@@ -48,9 +48,10 @@ To do this, you must specify the actions in case of failure using the method `On
   ```  
 **Result On Failure can be in two cases:**
  - get not expected value
+  - returns `NotExpectedValue<T>` type.
  - due to some exceptions
-In case of Not Expected Value returns `NotExpectedValue<T>` type.
-In the case when exceptions returns `ExceptionsHappened` type.
+  - `ExceptionsHappened` type.
+
 We have methods to handle this cases:
 - for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods
 - for ExceptionsHappened — `WhenWasExceptionsand` and `DoWhenWasExceptions`
