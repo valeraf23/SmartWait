@@ -1,13 +1,12 @@
 ﻿using System;
-using SmartWait.Core;
-using SmartWait.Results.FailureTypeResults;
 
 namespace SmartWait.Results.Extension
 {
-    public static class ResultAdapter
+    public static partial class ResultAdapter
     {
         public static Result<TNewSuccess, TFailure> OnSuccess<TSuccess, TFailure, TNewSuccess>(
-            this Result<TSuccess, TFailure> result, Func<TSuccess, TNewSuccess> map) => result is Success<TSuccess, TFailure> right
+            this Result<TSuccess, TFailure> result, Func<TSuccess, TNewSuccess> map) =>
+            result is Success<TSuccess, TFailure> right
                 ? (Result<TNewSuccess, TFailure>)map(right)
                 : (TFailure)(Failure<TSuccess, TFailure>)result;
 
@@ -33,7 +32,6 @@ namespace SmartWait.Results.Extension
             if (result is not Success<TSuccess, TFailure> success) return result;
             map(success);
             return success;
-
         }
 
         public static Result<TSuccess, TFailure> OnFailure<TSuccess, TFailure>(this Result<TSuccess, TFailure> result,
@@ -43,7 +41,5 @@ namespace SmartWait.Results.Extension
             map(failure);
             return failure;
         }
-
-        public static TSuccess OnFailureThrowException<TSuccess>(this Result<TSuccess, FailureResult> result) => result.OnFailure(fr => throw new WaitConditionalException(fr.ToString()));
     }
 }
