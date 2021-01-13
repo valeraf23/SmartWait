@@ -26,7 +26,6 @@ namespace SmartWait.Tests
         {
             //Arrange
             static bool Expected() => 3 > 1;
-
             var actual = false;
 
             //Act
@@ -42,9 +41,7 @@ namespace SmartWait.Tests
         {
             //Arrange
             var timeLimit = TimeSpan.FromSeconds(5);
-
             static bool Expected() => 3 > 4;
-
             var actual = false;
 
             //Act
