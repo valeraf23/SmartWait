@@ -63,6 +63,7 @@ namespace SmartWait.Tests
             //Arrange
             static bool Expected() => throw new ArgumentException("ArgumentException");
 
+            //Act
             Action act = () => WaitFor.Condition(Expected,
                 buildWaiter => buildWaiter.SetNotIgnoredExceptionType<ArgumentException>().Build(),
                 DefaultTimeOutMessage);
@@ -133,10 +134,30 @@ namespace SmartWait.Tests
             //Assert
             var res = WaitFor.For(() => actual)
                 .Become(a => a == 4)
-                .OnFailureWhenNotExpectedValue(x => x.ActuallyValue)
+                .WhenNotExpectedValue(x => x.ActuallyValue)
                 .OnFailure(_ => 0);
 
             res.Should().Be(3);
+        }
+
+        [Test]
+        public void For_Failure_DoWhenNotExpectedValue()
+        {
+            //Arrange
+            static int Expected() => 3;
+
+            var actual = 0;
+            var callbackExpected = 0;
+            //Act
+            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(1)); });
+
+            //Assert
+            WaitFor.For(() => actual)
+                .Become(a => a == 4)
+                .DoNotExpectedValue(x => callbackExpected = x.ActuallyValue)
+                .OnFailure(_ => 0);
+
+            callbackExpected.Should().Be(3);
         }
 
         [Test]
@@ -317,7 +338,7 @@ namespace SmartWait.Tests
             }
 
             var failureResult = WaitFor.For(Sut, b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).Build())
-                .Become(x => x != null).OnFailureWhenWasExceptions(x => x.ToString()).OnFailure(_ => "Finish");
+                .Become(x => x != null).WhenWasExceptions(x => x.ToString()).OnFailure(_ => "Finish");
 
             //Assert
             var actualErrorMsg = failureResult;
