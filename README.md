@@ -47,9 +47,9 @@ To do this, you must specify the actions in case of failure using the method `On
 // "New result 3"
   ```  
 **Result On Failure can be in two cases:**
- - get not expected value
+ - *get **not expected value***
    - returns `NotExpectedValue<T>` type.
- - due to some exceptions
+ - *due to some **exceptions***
    - returns `ExceptionsHappened` type.
 
 **We have methods that can help to handle these cases:**
