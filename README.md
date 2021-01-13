@@ -46,7 +46,7 @@ To do this, you must specify the actions in case of failure using the method `On
                 .OnFailureThrowException();
 // "New result 3"
   ```  
-#### Result On Failure can be in two cases:**
+#### Result On Failure can be in two cases:
  - *get **not expected value***
    - returns `NotExpectedValue<T>` type.
  - *due to some **exceptions***
