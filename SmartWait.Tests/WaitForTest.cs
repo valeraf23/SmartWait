@@ -136,7 +136,7 @@ namespace SmartWait.Tests
                 .Become(a => a == 4)
                 .WhenNotExpectedValue(x => x.ActuallyValue)
                 .OnFailure(_ => 0);
-
+           
             res.Should().Be(3);
         }
 
@@ -154,7 +154,7 @@ namespace SmartWait.Tests
             //Assert
             WaitFor.For(() => actual)
                 .Become(a => a == 4)
-                .DoNotExpectedValue(x => callbackExpected = x.ActuallyValue)
+                .DoWhenNotExpectedValue(x => callbackExpected = x.ActuallyValue)
                 .OnFailure(_ => 0);
 
             callbackExpected.Should().Be(3);

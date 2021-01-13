@@ -20,7 +20,7 @@ namespace SmartWait.Results.Extension
             this Result<TSuccess, FailureResult> result,
             [NotNull] Action<ExceptionsHappened> map) => DoOnFailure(result, map, f => f as ExceptionsHappened);
 
-        public static Result<TSuccess, FailureResult> DoNotExpectedValue<TSuccess>(
+        public static Result<TSuccess, FailureResult> DoWhenNotExpectedValue<TSuccess>(
             this Result<TSuccess, FailureResult> result,
             [NotNull] Action<NotExpectedValue<TSuccess>> map) =>
             DoOnFailure(result, map, f => f as NotExpectedValue<TSuccess>);
