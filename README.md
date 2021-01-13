@@ -52,9 +52,20 @@ To do this, you must specify the actions in case of failure using the method `On
  In case of Not Expected Value returns `NotExpectedValue<T>` type
  In the case when exceptions returns `ExceptionsHappened` type
 We have methods to handle this cases:
-- for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods**
+- for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods
 - for ExceptionsHappened -- `WhenWasExceptionsand` and `DoWhenWasExceptions`
+ ```csharp
+  var res = WaitFor.For(() => 3)
+                .Become(a => a == 4)
+                .WhenNotExpectedValue(x => x.ActuallyValue)
+                .OnFailure(_ => 0);
+Console.WriteLine(res) //3
 
+  WaitFor.For(() => 3)
+                .Become(a => a == 4)
+                .DoWhenNotExpectedValue(x => Console.WriteLine("Something goes wrong"))
+                .OnFailure(_ => 0);
+  ```    
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
  var res = WaitFor.For(() => actual,
