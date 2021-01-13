@@ -50,7 +50,7 @@ To do this, you must specify the actions in case of failure using the method `On
  - get not expected value
    - returns `NotExpectedValue<T>` type.
  - due to some exceptions
-   - `ExceptionsHappened` type.
+   - returns `ExceptionsHappened` type.
 
 **We have methods that can help to handle these cases:**
 - `WhenNotExpectedValue` and `DoWhenNotExpectedValue`
