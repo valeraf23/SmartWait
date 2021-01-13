@@ -52,7 +52,7 @@ To do this, you must specify the actions in case of failure using the method `On
  - due to some exceptions
    - `ExceptionsHappened` type.
 
-We have methods to handle this cases:
+We have methods that can help to handle these cases:
 - for NotExpectedValue<T> we can use `WhenNotExpectedValue` and `DoWhenNotExpectedValu` methods
 - for ExceptionsHappened — `WhenWasExceptionsand` and `DoWhenWasExceptions`
  ```csharp
