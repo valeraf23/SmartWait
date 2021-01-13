@@ -77,9 +77,9 @@ Console.WriteLine(res) //3
  #### Also, you can use your custom algorithm for delayed steps   
  
  ```csharp                
-      var res = WaitFor.For(() => actual, b => b.SetTimeBetweenStep(retryAttempt =>
-                                                 TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
-                                                 .Build())
-                                                 .Become(a => a == 5);
+      var res = WaitFor.For(() => actual, 
+                        b => b.SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
+                       .Build())
+                       .Become(a => a == 5);
 ```
 #### For **additional information** look in [Tests Cases](https://github.com/valeraf23/SmartWait/blob/master/SmartWait.Tests/WaitForTest.cs)
