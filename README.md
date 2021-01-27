@@ -5,7 +5,7 @@
 [![NuGet.org](https://img.shields.io/nuget/v/SmartWait.svg?style=flat-square&label=NuGet.org)](https://www.nuget.org/packages/SmartWait/)
 ![Nuget](https://img.shields.io/nuget/dt/SmartWait)
 [![Build status](https://ci.appveyor.com/api/projects/status/5p0bee7pvo6nn3tq/branch/master?svg=true)](https://ci.appveyor.com/project/valeraf23/smartwait/branch/master)
-[![master Actions Status](https://github.com/valeraf23/SmartWait/workflows/master/badge.svg)](https://github.com/valeraf23/SmartWait/actions)
+[![.NET Actions Status](https://github.com/valeraf23/SmartWait/workflows/.NET/badge.svg)](https://github.com/valeraf23/SmartWait/actions)
 ## Installation
 
 #### Install with NuGet Package Manager Console
