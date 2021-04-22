@@ -5,6 +5,7 @@
 [![NuGet.org](https://img.shields.io/nuget/v/SmartWait.svg?style=flat-square&label=NuGet.org)](https://www.nuget.org/packages/SmartWait/)
 ![Nuget](https://img.shields.io/nuget/dt/SmartWait)
 [![Build status](https://ci.appveyor.com/api/projects/status/5p0bee7pvo6nn3tq/branch/master?svg=true)](https://ci.appveyor.com/project/valeraf23/smartwait/branch/master)
+[![.NET Actions Status](https://github.com/valeraf23/SmartWait/workflows/.NET/badge.svg)](https://github.com/valeraf23/SmartWait/actions)
 ## Installation
 
 #### Install with NuGet Package Manager Console
@@ -46,7 +47,7 @@ To do this, you must specify the actions in case of failure using the method `On
                 .OnFailureThrowException();
 // "New result 3"
   ```  
-**Result On Failure can be in two cases:**
+#### Result On Failure can be in two cases:
  - *get **not expected value***
    - returns `NotExpectedValue<T>` type.
  - *due to some **exceptions***
@@ -64,7 +65,7 @@ Console.WriteLine(res) //3
 
   WaitFor.For(() => 3)
                 .Become(a => a == 4)
-                .DoWhenNotExpectedValue(x => Console.WriteLine("Something goes wrong"))
+                .DoWhenNotExpectedValue(_ => Console.WriteLine("Something goes wrong"))
                 .OnFailure(_ => 0);
   ```    
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
@@ -77,9 +78,9 @@ Console.WriteLine(res) //3
  #### Also, you can use your custom algorithm for delayed steps   
  
  ```csharp                
-      var res = WaitFor.For(() => actual, b => b.SetTimeBetweenStep(retryAttempt =>
-                                                 TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
-                                                 .Build())
-                                                 .Become(a => a == 5);
+ var res = WaitFor.For(() => actual, 
+                       b => b.SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
+                      .Build())
+                      .Become(a => a == 5);
 ```
 #### For **additional information** look in [Tests Cases](https://github.com/valeraf23/SmartWait/blob/master/SmartWait.Tests/WaitForTest.cs)
