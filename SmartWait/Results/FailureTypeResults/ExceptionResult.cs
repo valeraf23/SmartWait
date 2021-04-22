@@ -11,9 +11,9 @@ namespace SmartWait.Results.FailureTypeResults
             ExceptionMsg = exceptionMsg;
         }
 
-        [JsonPropertyName("Exception Message")] public string ExceptionMsg { get; init; }
+        [JsonPropertyName("Exception Message")] public string ExceptionMsg { get; }
 
         [JsonPropertyName("Exceptions During Wait")]
-        public List<ExceptionCounter> Exceptions { get; init; }
+        public List<ExceptionCounter> Exceptions { get; }
     }
 }

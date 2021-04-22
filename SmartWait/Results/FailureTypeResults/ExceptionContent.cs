@@ -13,9 +13,9 @@ namespace SmartWait.Results.FailureTypeResults
             CallStack = exception.ToStringDemystified();
         }
 
-        [JsonIgnore] public Exception Exception { get; init; }
+        [JsonIgnore] public Exception Exception { get; }
 
-        public string? CallStack { get; init; }
+        public string? CallStack { get; }
 
         public bool Equals(ExceptionContent? other)
         {
@@ -28,14 +28,23 @@ namespace SmartWait.Results.FailureTypeResults
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ExceptionContent)obj);
+            return obj.GetType() == GetType() && Equals((ExceptionContent) obj);
         }
 
-        public static bool operator ==(ExceptionContent? a, ExceptionContent? b) => a is null && b is null ||
+        public static bool operator ==(ExceptionContent? a, ExceptionContent? b)
+        {
+            return a is null && b is null ||
                    a?.Equals(b) == true;
+        }
 
-        public static bool operator !=(ExceptionContent? a, ExceptionContent? b) => !(a == b);
+        public static bool operator !=(ExceptionContent? a, ExceptionContent? b)
+        {
+            return !(a == b);
+        }
 
-        public override int GetHashCode() => CallStack != null ? CallStack.GetHashCode() : 0;
+        public override int GetHashCode()
+        {
+            return CallStack != null ? CallStack.GetHashCode() : 0;
+        }
     }
 }
