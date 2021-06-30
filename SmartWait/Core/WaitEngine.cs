@@ -3,7 +3,6 @@ using SmartWait.Results.FailureTypeResults;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -14,7 +13,7 @@ namespace SmartWait.Core
     {
         public static Result<TSuccessResult, FailureResult> Execute<TSuccessResult>(
             Func<TSuccessResult> action,
-            [NotNull] Expression<Func<TSuccessResult, bool>> waitCondition,
+              Expression<Func<TSuccessResult, bool>> waitCondition,
             TimeSpan maxWaitTime,
             Func<int, TimeSpan> stepEngine,
             string timeoutMessage,
@@ -22,7 +21,7 @@ namespace SmartWait.Core
             Action<int, TimeSpan> callbackIfWaitSuccessful)
         {
             var retryAttempt = 0;
-            TSuccessResult value = default;
+            TSuccessResult? value = default;
             List<Exception> ex = new();
             var wc = waitCondition.Compile();
             var stopwatch = Stopwatch.StartNew();

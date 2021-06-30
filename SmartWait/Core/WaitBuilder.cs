@@ -84,7 +84,7 @@ namespace SmartWait.Core
             return SetNotIgnoredExceptionType(typesList);
         }
 
-        public WaitBuilder<T> SetNotIgnoredExceptionType<TException>() => SetNotIgnoredExceptionType(typeof(TException));
+        public WaitBuilder<T> SetNotIgnoredExceptionType<TException>() => SetNotIgnoredExceptionType(typeof(TException), Array.Empty<Type>());
 
         public Wait<T> Build()
         {

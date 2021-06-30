@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace SmartWait.Results.FailureTypeResults
@@ -24,7 +23,7 @@ namespace SmartWait.Results.FailureTypeResults
         public FailureResult WhenExceptions(List<Exception> exceptions) => new ExceptionsHappened(_retryAttempt, _maxWaitTime, _stopwatchElapsed, _timeoutMessage, exceptions);
 
         public FailureResult WhenNotExpectedValue<TSuccessResult>(TSuccessResult actuallyValue,
-            [NotNull] Expression<Func<TSuccessResult, bool>> waitCondition) => new NotExpectedValue<TSuccessResult>(_retryAttempt, _maxWaitTime, _stopwatchElapsed, _timeoutMessage,
+              Expression<Func<TSuccessResult, bool>> waitCondition) => new NotExpectedValue<TSuccessResult>(_retryAttempt, _maxWaitTime, _stopwatchElapsed, _timeoutMessage,
             actuallyValue, waitCondition);
     }
 }

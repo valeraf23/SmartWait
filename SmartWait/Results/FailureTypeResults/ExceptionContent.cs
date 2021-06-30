@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace SmartWait.Results.FailureTypeResults
 {
     public class ExceptionContent : IEquatable<ExceptionContent>
     {
-        public ExceptionContent([NotNull] Exception exception)
+        public ExceptionContent(Exception exception)
         {
             Exception = exception;
             CallStack = exception.ToStringDemystified();
@@ -28,23 +27,14 @@ namespace SmartWait.Results.FailureTypeResults
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ExceptionContent) obj);
+            return obj.GetType() == GetType() && Equals((ExceptionContent)obj);
         }
 
-        public static bool operator ==(ExceptionContent? a, ExceptionContent? b)
-        {
-            return a is null && b is null ||
+        public static bool operator ==(ExceptionContent? a, ExceptionContent? b) => a is null && b is null ||
                    a?.Equals(b) == true;
-        }
 
-        public static bool operator !=(ExceptionContent? a, ExceptionContent? b)
-        {
-            return !(a == b);
-        }
+        public static bool operator !=(ExceptionContent? a, ExceptionContent? b) => !(a == b);
 
-        public override int GetHashCode()
-        {
-            return CallStack != null ? CallStack.GetHashCode() : 0;
-        }
+        public override int GetHashCode() => CallStack is not null ? CallStack.GetHashCode() : 0;
     }
 }
