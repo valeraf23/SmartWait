@@ -10,8 +10,8 @@ namespace SmartWait.Core
     public sealed class Wait<T>
     {
         public readonly Func<T> Factory;
-        public TimeSpan MaxWaitTime;
-        public List<Type> NotIgnoredExceptionType = new();
+        public TimeSpan MaxWaitTime { get; set; }
+        public List<Type> NotIgnoredExceptionType { get; } = new();
        
         public Wait(Func<T> factory)
         {
