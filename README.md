@@ -70,6 +70,9 @@ To do this, you must specify the actions in case of failure using the method `On
 #### Result On Failure can be in two cases:
  - *get **not expected value***
    - returns `NotExpectedValue<T>` type.
+     -which contain next information:
+     `Timeout after 30.6766654 second(s) and NUMBER OF ATTEMPTS 17 
+      Expected: (a) => a == 5, but parameter 'a': 3`
  - *due to some **exceptions***
    - returns `ExceptionsHappened` type.
 
