@@ -102,7 +102,7 @@ var testClass = new SomeClass
 _ = WaitFor.For(() => testClass)
       .Become(a => a.Child.SomeNumber == 4)
       .DoWhenNotExpectedValue(x => Console.WriteLine(x.ToString()));
-*/  Console output :      
+/*  Console output :      
     Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
     Expected: (a) => a.Child.SomeNumber == 4, but parameter 'a':
     {
