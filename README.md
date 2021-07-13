@@ -49,8 +49,7 @@ To do this, you must specify the actions in case of failure using the method `On
                 .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
                 .OnFailure(_ => -2);
                 
- //asynchronous option        
- 
+ //asynchronous option         
   var result = WaitFor.ForAsync(async () =>
      {
          await Task.Delay(10);
