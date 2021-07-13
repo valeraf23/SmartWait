@@ -87,9 +87,9 @@ Console.WriteLine(res) //3
                 .Become(a => a == 4)
                 .DoWhenNotExpectedValue(x => Console.WriteLine(x))
                 .OnFailure(_ => 0);
-  `Console output :
-Timeout after 30.6826992 second(s) and NUMBER OF ATTEMPTS 17 
-Expected: (a) => a == 4, but parameter 'a': 3 `
+//  Console output :
+//  Timeout after 30.6826992 second(s) and NUMBER OF ATTEMPTS 17 
+//  Expected: (a) => a == 4, but parameter 'a': 3
   ```    
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
