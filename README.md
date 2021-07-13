@@ -25,6 +25,15 @@ WaitFor.Condition(waitCondition, builder=>builder
                                    .SetCallbackForSuccessful(callback)
                                    .SetNotIgnoredExceptionType(notIgnoredExceptionType)
                                    .Build(), timeoutMessage);
+                                   
+ static async Task<bool> Expected()
+ {
+     await Task.Delay(TimeSpan.FromSeconds(1));
+     return true;
+ }
+ 
+ await WaitFor.Condition(Expected, DefaultTimeOutMessage, timeLimit);
+ 
 ```
 #### In case when you use `WaitFor.Condition` if the given condition is not met will be rise exception  
 ![Screenshot](https://user-images.githubusercontent.com/6804802/103997429-bbf75600-51a3-11eb-8107-8177951e6e43.png)
