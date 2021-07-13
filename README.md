@@ -36,7 +36,7 @@ WaitFor.Condition(waitCondition, builder=>builder
  
 ```
 #### In case when you use `WaitFor.Condition` if the given condition is not met will be rise exception  
-![Screenshot](https://user-images.githubusercontent.com/6804802/103997429-bbf75600-51a3-11eb-8107-8177951e6e43.png)
+![Screenshot](https://user-images.githubusercontent.com/6804802/125397715-fc37cb00-e3b6-11eb-93b1-e29ab4bac395.png)
 
 #### In case when some exceptions happen and we got not expected value we can read information about a `number of exceptions and where it happened`
 ![Screenshot](https://user-images.githubusercontent.com/6804802/103993612-8bf98400-519e-11eb-9a95-5e93451b9cfe.png)
