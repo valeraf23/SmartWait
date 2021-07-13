@@ -89,6 +89,28 @@ Console.WriteLine(res) //3
 //  Console output :
 //  Timeout after 30.6826992 second(s) and NUMBER OF ATTEMPTS 17 
 //  Expected: (a) => a == 4, but parameter 'a': 3
+
+var testClass = new SomeClass
+ {
+     SomeNumber = 5,
+     Child = new OtherClass
+     {
+        SomeNumber = 10
+     }
+ };
+ 
+_ = WaitFor.For(() => testClass)
+      .Become(a => a.Child.SomeNumber == 4)
+      .DoWhenNotExpectedValue(x => Console.WriteLine(x.ToString()));
+//  Console output :      
+    Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
+    Expected: (a) => a.Child.SomeNumber == 4, but parameter 'a':
+     {
+      "SomeNumber": 5,
+      "Child": {
+        "SomeNumber": 10
+       }
+     }
   ```    
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
