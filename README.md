@@ -48,6 +48,17 @@ To do this, you must specify the actions in case of failure using the method `On
                 .Become(a => a == 5)
                 .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
                 .OnFailure(_ => -2);
+                
+ //asynchronous option        
+ 
+  var result = WaitFor.ForAsync(async () =>
+     {
+         await Task.Delay(10);
+         return 0;
+     })
+     .Become(a => a == 5)
+     .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
+     .OnFailure(_ => -2);                
   ```  
 **Using the `OnSuccess` method, you can specify actions on the value in case of a successful result**
   ```csharp
