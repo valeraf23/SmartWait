@@ -1,9 +1,9 @@
-using System;
-using System.Linq.Expressions;
 using SmartWait.Results;
 using SmartWait.Results.FailureTypeResults;
+using System;
+using System.Linq.Expressions;
 
-namespace SmartWait.Core
+namespace SmartWait.Core.Sync
 {
     public readonly struct Builder<T>
     {

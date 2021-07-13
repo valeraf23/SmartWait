@@ -25,5 +25,6 @@ namespace SmartWait.Results.FailureTypeResults
         public FailureResult WhenNotExpectedValue<TSuccessResult>(TSuccessResult actuallyValue,
               Expression<Func<TSuccessResult, bool>> waitCondition) => new NotExpectedValue<TSuccessResult>(_retryAttempt, _maxWaitTime, _stopwatchElapsed, _timeoutMessage,
             actuallyValue, waitCondition);
+
     }
 }

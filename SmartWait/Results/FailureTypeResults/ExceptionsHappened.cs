@@ -22,7 +22,7 @@ namespace SmartWait.Results.FailureTypeResults
             {
                 ExceptionContent content = new(exception);
                 var exist = exceptionCounters.FirstOrDefault(x => x.Content == content);
-                if (exist != null)
+                if (exist is not null)
                     exist.Counter++;
                 else
                     exceptionCounters.Add(new ExceptionCounter(content));

@@ -1,6 +1,9 @@
-﻿using SmartWait.Helpers;
-using System;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json;
+using VF.ExpressionParser;
+using TypeExtension = SmartWait.Helpers.TypeExtension;
 
 namespace SmartWait.Results.FailureTypeResults
 {
@@ -22,9 +25,27 @@ namespace SmartWait.Results.FailureTypeResults
         public override string ToString()
         {
             var exceptionMsg = base.ToString();
+            if (typeof(T) == typeof(bool)) return exceptionMsg;
+            var msg =
+                $"{exceptionMsg}{Environment.NewLine}Expected: {ExpressionExtension.ConvertToString(_waitCondition)}";
+            if (ActuallyValue is not null && TypeExtension.IsPrimitiveOrString(ActuallyValue.GetType()))
+            {
+                return $"{msg}, but parameter \'{_waitCondition.Parameters.First().Name}\': {ActuallyValue}";
+            }
 
-            return
-                $"{exceptionMsg}{Environment.NewLine}Expected: {ExpressionExtension.Get(_waitCondition)}, but was {ActuallyValue}";
+            try
+            {
+                var options = new JsonSerializerOptions {WriteIndented = true};
+                string json = JsonSerializer.Serialize(ActuallyValue, options);
+                return $"{msg}, but parameter \'{_waitCondition.Parameters.First().Name}\':{Environment.NewLine} {json}";
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            return msg;
+
         }
     }
 }

@@ -28,8 +28,7 @@ namespace SmartWait.Results.FailureTypeResults
             var msg = _timeoutMessage;
             if (!string.IsNullOrEmpty(_timeoutMessage)) msg = $": {_timeoutMessage}";
 
-            return
-                $"Timeout after {_stopwatchElapsed.TotalSeconds} second(s) and {"number of attempts".ToUpper()} {_retryAttempt} {msg}";
+            return $"Timeout after {_stopwatchElapsed.TotalSeconds} second(s) and {"number of attempts".ToUpper()} {_retryAttempt} {msg}";
         }
     }
 }

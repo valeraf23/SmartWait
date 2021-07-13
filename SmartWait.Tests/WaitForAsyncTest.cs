@@ -1,39 +1,45 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using SmartWait.Core;
-using SmartWait.Results;
-using SmartWait.Results.Extension;
-using SmartWait.Results.FailureTypeResults;
-using SmartWait.WaitSteps;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using NUnit.Framework;
+using SmartWait.Core;
+using SmartWait.Core.Async;
+using SmartWait.Results.Extension;
+using SmartWait.Results.FailureTypeResults;
+using SmartWait.WaitSteps;
 
 namespace SmartWait.Tests
 {
     [TestFixture]
     [Parallelizable(ParallelScope.Children)]
-    internal class WaitForTest
+    internal class WaitForAsyncTest
     {
         private const string DefaultTimeOutMessage = "Fail";
 
         [Test]
-        public void Condition_Success()
+        public async Task Condition_Success()
         {
             //Arrange
-            static bool Expected() => 3 > 1;
-            var actual = false;
+            static async Task<int> Expected()
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return 4;
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected); });
+            var res = await WaitEngineAsync.ExecuteAsync(Expected, x => x > 3, TimeSpan.FromSeconds(3),
+                i => TimeSpan.FromMilliseconds(i),
+                DefaultTimeOutMessage,
+                new List<Type>(),
+                null!).OnFailure(_ => 0);
 
             //Assert
-            WaitFor.Condition(() => actual, DefaultTimeOutMessage);
-            Assert.Pass();
+            res.Should().Be(4);
         }
 
         [Test]
@@ -41,26 +47,32 @@ namespace SmartWait.Tests
         {
             //Arrange
             var timeLimit = TimeSpan.FromSeconds(5);
-            static bool Expected() => 3 > 4;
-            var actual = false;
+
+            static async Task<bool> Expected()
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return 3 > 4;
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-            Action act = () => WaitFor.Condition(() => actual, DefaultTimeOutMessage, timeLimit);
+            Func<Task> act = async () => await WaitFor.Condition(Expected, DefaultTimeOutMessage, timeLimit);
 
             //Assert
             act.Should().Throw<WaitConditionalException>().And.Message.Should()
-                .Contain(DefaultTimeOutMessage);
+                .Contain(DefaultTimeOutMessage).And.NotContain("Expected()");
         }
 
         [Test]
         public void Catch_NotIgnored_Exception()
         {
             //Arrange
-            static bool Expected() => throw new ArgumentException("ArgumentException");
+            static Task<bool> Expected()
+            {
+                throw new ArgumentException("ArgumentException");
+            }
 
             //Act
-            Action act = () => WaitFor.Condition(Expected,
+            Func<Task> act = async () => await WaitFor.Condition(Expected,
                 buildWaiter => buildWaiter.SetNotIgnoredExceptionType<ArgumentException>().Build(),
                 DefaultTimeOutMessage);
 
@@ -72,9 +84,13 @@ namespace SmartWait.Tests
         public void Catch_Ignored_Exception()
         {
             //Arrange
-            static bool Expected() => throw new ArgumentException("ArgumentException");
+            static Task<bool> Expected()
+            {
+                throw new ArgumentException("ArgumentException");
+            }
 
-            Action act = () => WaitFor.Condition(Expected, DefaultTimeOutMessage);
+            //Act
+            Func<Task> act = async () => await WaitFor.Condition(Expected, DefaultTimeOutMessage);
 
             //Assert
             act.Should().Throw<WaitConditionalException>().And.Message.Should().Contain(nameof(ArgumentException)).And
@@ -82,91 +98,90 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_Success()
+        public async Task For_Success()
         {
             //Arrange
-            static int Expected() => 3;
-
-            var actual = 0;
+            static async Task<int> Expected()
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return 3;
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
+            var res = await WaitFor.ForAsync(Expected).Become(a => a == 3).OnFailure(_ => 0);
 
             //Assert
-            var res = WaitFor.For(() => actual).Become(a => a == 3).OnFailure(_ => 0);
             res.Should().Be(3);
         }
 
         [Test]
-        public void For_Failure()
+        public async Task For_Failure()
         {
             //Arrange
-            static int Expected() => 3;
-
-            var actual = 0;
+            static async Task<int> Expected()
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return 3;
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(1)); });
+            var res = await WaitFor.ForAsync(Expected).Become(a => a == 4).OnFailure(_ => 0);
 
             //Assert
-            var res = WaitFor.For(() => actual)
-                .Become(a => a == 4)
-                .OnFailure(_ => 0);
-
             res.Should().Be(0);
         }
 
         [Test]
-        public void For_Failure_OnFailureWhenNotExpectedValue()
+        public async Task For_Failure_OnFailureWhenNotExpectedValue()
         {
             //Arrange
-            static int Expected() => 3;
-
-            var actual = 0;
+            static Task<int> Expected()
+            {
+                return Task.FromResult(3);
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(1)); });
-
-            //Assert
-            var res = WaitFor.For(() => actual)
+            var res = await WaitFor.ForAsync(Expected)
                 .Become(a => a == 4)
                 .WhenNotExpectedValue(x => x.ActuallyValue)
                 .OnFailure(_ => 0);
-           
+
+            //Assert
             res.Should().Be(3);
         }
 
         [Test]
-        public void For_Failure_DoWhenNotExpectedValue()
+        public async Task For_Failure_DoWhenNotExpectedValue()
         {
             //Arrange
-            static int Expected() => 3;
+            static Task<int> Expected()
+            {
+                return Task.FromResult(3);
+            }
 
-            var actual = 0;
             var callbackExpected = 0;
-            //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(1)); });
 
-            //Assert
-            WaitFor.For(() => actual)
+            //Act
+            await WaitFor.ForAsync(Expected)
                 .Become(a => a == 4)
                 .DoWhenNotExpectedValue(x => callbackExpected = x.ActuallyValue)
                 .OnFailure(_ => 0);
 
+            //Assert
             callbackExpected.Should().Be(3);
         }
 
         [Test]
-        public void For_Success_Return_New_Type()
+        public async Task For_Success_Return_New_Type()
         {
             //Arrange
-            static int Expected() => 3;
-
-            var actual = 0;
+            static Task<int> Expected()
+            {
+                return Task.FromResult(3);
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-            var res = WaitFor.For(() => actual).Become(a => a == 3)
+            var res = await WaitFor.ForAsync(Expected).Become(a => a == 3)
                 .OnSuccess(x => x.ToString())
                 .OnFailureThrowException();
 
@@ -175,16 +190,16 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_Failure_With_Condition()
+        public async Task For_Failure_With_Condition()
         {
             //Arrange
-            static int Expected() => 3;
-
-            var actual = 0;
+            static Task<int> Expected()
+            {
+                return Task.FromResult(3);
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-            var res = WaitFor.For(() => actual)
+            var res = await WaitFor.ForAsync(Expected)
                 .Become(a => a == 5)
                 .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
                 .OnFailure(_ => -2);
@@ -194,19 +209,20 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_Failure_Return_ActuallyValue()
+        public async Task For_Failure_Return_ActuallyValue()
         {
             //Arrange
-            static int Expected() => 3;
-
-            var actual = 0;
+            static Task<int> Expected()
+            {
+                return Task.FromResult(3);
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-            var res = WaitFor.For(() => actual,
+            var res = await WaitFor.ForAsync(Expected,
                     w => w
                         .SetTimeBetweenStep(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))).Build())
                 .Become(a => a == 5);
+
             var notExpectedResult = Assertion.AssertFailure<int, NotExpectedValue<int>>(res);
 
             //Assert
@@ -214,16 +230,16 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_Success_Return_ActuallyValue()
+        public async Task For_Success_Return_ActuallyValue()
         {
             //Arrange
-            static int Expected() => 3;
-
-            var actual = 0;
+            static Task<int> Expected()
+            {
+                return Task.FromResult(3);
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-            var res = WaitFor.For(() => actual,
+            var res = await WaitFor.ForAsync(Expected,
                     w => w.SetLogarithmStep(Time.FromSeconds).Build())
                 .Become(a => a == 3).OnFailureThrowException();
 
@@ -232,23 +248,25 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_Success_For_Classes()
+        public async Task For_Success_For_Classes()
         {
             //Arrange
-            static SomeClass Expected() => new()
+            static async Task<SomeClass> Expected()
             {
-                SomeNumber = 3,
-                Child = new OtherClass
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return new SomeClass
                 {
-                    SomeNumber = 1
-                }
-            };
-
-            SomeClass actual = default;
+                    SomeNumber = 3,
+                    Child = new OtherClass
+                    {
+                        SomeNumber = 1
+                    }
+                };
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-            var res = WaitFor.For(() => actual).Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
+            var res = await WaitFor.ForAsync(Expected)
+                .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
                 .OnFailureThrowException();
 
             //Assert
@@ -260,30 +278,31 @@ namespace SmartWait.Tests
         public void For_Rise_Exception_For_FailureResult()
         {
             //Arrange
-            static SomeClass Expected() => new()
+            static async Task<SomeClass> Expected()
             {
-                SomeNumber = 3,
-                Child = new OtherClass
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                return new SomeClass
                 {
-                    SomeNumber = 5
-                }
-            };
-
-            SomeClass actual = default;
+                    SomeNumber = 3,
+                    Child = new OtherClass
+                    {
+                        SomeNumber = 5
+                    }
+                };
+            }
 
             //Act
-            Task.Run(() => { actual = Do(Expected, TimeSpan.FromSeconds(2)); });
-
-            Result<SomeClass, FailureResult> Func() => WaitFor.For(() => actual)
-                    .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
-                    .OnFailureThrowException();
+            Func<Task<SomeClass>> act = async () => await WaitFor.ForAsync(Expected)
+                .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
+                .OnFailureThrowException();
 
             //Assert
-            Assert.That(Func, Throws.TypeOf<WaitConditionalException>());
+            act.Should().Throw<WaitConditionalException>().And.Message
+                .Contains("Expected: (a) => a.Child.SomeNumber == 1 && a.SomeNumber == 3");
         }
 
         [Test]
-        public void Exceptions_Should_Has_Json_View()
+        public async Task Exceptions_Should_Has_Json_View()
         {
             //Arrange
             const int exceptionRiseCount = 4;
@@ -291,15 +310,16 @@ namespace SmartWait.Tests
             const int timeWaitInSec = 10;
 
             //Act
-            string Sut()
+            async Task<string> Sut()
             {
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
                 if (interaction > exceptionRiseCount) throw new Exception("Exception: 2");
                 interaction++;
                 throw new ArgumentException("ArgumentException: 1");
             }
 
-            var result = WaitFor.For(Sut, b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).Build())
-                .Become(x => x != null);
+            var result = await WaitFor.ForAsync(Sut, b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).Build())
+                .Become(x => !string.IsNullOrEmpty(x));
 
             //Assert
             var failureResult = Assertion.AssertFailure<string, ExceptionsHappened>(result);
@@ -318,7 +338,7 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_OnFailureWhenWasExceptions()
+        public async Task For_OnFailureWhenWasExceptions()
         {
             //Arrange
             const int exceptionRiseCount = 4;
@@ -326,36 +346,40 @@ namespace SmartWait.Tests
             const int timeWaitInSec = 10;
 
             //Act
-            string Sut()
+            async Task<string> Sut()
             {
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
                 if (interaction > exceptionRiseCount) throw new Exception("Exception: 2");
                 interaction++;
                 throw new ArgumentException("ArgumentException: 1");
             }
 
-            var failureResult = WaitFor.For(Sut, b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).Build())
+            var failureResult = await WaitFor
+                .ForAsync(Sut, b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).Build())
                 .Become(x => x != null).WhenWasExceptions(x => x.ToString()).OnFailure(_ => "Finish");
 
             //Assert
-            var actualErrorMsg = failureResult;
-            ValidateJson(actualErrorMsg).Should().BeTrue($"Expected Json representation {actualErrorMsg}");
+            ValidateJson(failureResult).Should().BeTrue($"Expected Json representation {failureResult}");
         }
 
         [Test]
-        public void NotExpectedValue_Should_Contain_ActuallyValue()
+        public async Task NotExpectedValue_Should_Contain_ActuallyValue()
         {
             //Arrange
             const int timeWaitInSec = 1;
-            const int act = 3;
             var timeOutMsg = $"Fail {nameof(NotExpectedValue_Should_Contain_ActuallyValue)}";
             Expression<Func<int, bool>> predicate = x => x == 4;
 
             //Act
-            static int Sut() => act;
+            static Task<int> Sut()
+            {
+                return Task.FromResult(3);
+            }
 
-            var result = WaitFor.For(Sut,
+            var result = await WaitFor.ForAsync(Sut,
                     b => b.SetMaxWaitTime(TimeSpan.FromSeconds(timeWaitInSec)).SetTimeOutMessage(timeOutMsg).Build())
                 .Become(predicate);
+
             //Assert
             var failureResult = Assertion.AssertFailure<int, NotExpectedValue<int>>(result);
 
@@ -367,22 +391,21 @@ namespace SmartWait.Tests
         [TestCase(5)]
         [TestCase(10)]
         [TestCase(60)]
-        public void MaxTime_Should_be_Close_To_Actual(int sec)
+        public async Task MaxTime_Should_be_Close_To_Actual(int sec)
         {
             var maxTime = TimeSpan.FromSeconds(sec);
             var stopwatch = Stopwatch.StartNew();
-            WaitFor.For(() => 5, b => b.SetMaxWaitTime(maxTime).Build()).Become(x => x == 6);
+
+            static async Task<int> Func()
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
+                return 5;
+            }
+
+            await WaitFor.ForAsync(Func, b => b.SetMaxWaitTime(maxTime).Build()).Become(x => x == 6);
             stopwatch.Elapsed.Should().BeGreaterOrEqualTo(maxTime);
         }
 
-        private static T Do<T>(Func<T> act, TimeSpan time)
-        {
-            Thread.Sleep(time);
-            Console.WriteLine(act());
-            return act();
-        }
-
-        private static T Do<T>(Func<T> act) => Do(act, TimeSpan.FromSeconds(3));
 
         private class SomeClass
         {

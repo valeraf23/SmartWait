@@ -4,7 +4,7 @@ using System;
 
 namespace SmartWait.Results.Extension
 {
-    public static partial class ResultAdapter
+    public static partial class FailureResultAdapter
     {
         public static Result<TSuccess, FailureResult> WhenWasExceptions<TSuccess>(
             this Result<TSuccess, FailureResult> result,

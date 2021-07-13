@@ -2,7 +2,7 @@
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
-using SmartWait.Core;
+using SmartWait.Core.Sync;
 using SmartWait.WaitSteps;
 
 namespace SmartWait.Tests

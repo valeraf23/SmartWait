@@ -6,19 +6,21 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace SmartWait.Core
+namespace SmartWait.Core.Async
 {
-    internal static class WaitEngine
+    internal static class WaitEngineAsync
     {
-        public static Result<TSuccessResult, FailureResult> Execute<TSuccessResult>(
-            Func<TSuccessResult> action,
-              Expression<Func<TSuccessResult, bool>> waitCondition,
+        public static async Task<Result<TSuccessResult, FailureResult>> ExecuteAsync<TSuccessResult>(
+            Func<Task<TSuccessResult>> action,
+            Expression<Func<TSuccessResult, bool>> waitCondition,
             TimeSpan maxWaitTime,
             Func<int, TimeSpan> stepEngine,
             string timeoutMessage,
             IList<Type> notIgnoredExceptionType,
-            Action<int, TimeSpan> callbackIfWaitSuccessful)
+            Action<int, TimeSpan> callbackIfWaitSuccessful,
+            bool continueOnCapturedContext = false)
         {
             var retryAttempt = 0;
             TSuccessResult? value = default;
@@ -29,7 +31,7 @@ namespace SmartWait.Core
             {
                 try
                 {
-                    value = action();
+                    value = await action().ConfigureAwait(continueOnCapturedContext);
                     if (wc(value))
                     {
                         callbackIfWaitSuccessful?.Invoke(retryAttempt, stopwatch.Elapsed);
@@ -53,8 +55,7 @@ namespace SmartWait.Core
                 var canRetry = stopwatch.Elapsed < maxWaitTime;
                 if (!canRetry)
                 {
-                    var baseFailureResult =
-                        FailureResult.Create(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage);
+                    var baseFailureResult = FailureResult.Create(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage);
                     return ex.Any()
                         ? baseFailureResult.WhenExceptions(ex)
                         : baseFailureResult.WhenNotExpectedValue(value, waitCondition!);
