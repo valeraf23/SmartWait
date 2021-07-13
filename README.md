@@ -25,9 +25,18 @@ WaitFor.Condition(waitCondition, builder=>builder
                                    .SetCallbackForSuccessful(callback)
                                    .SetNotIgnoredExceptionType(notIgnoredExceptionType)
                                    .Build(), timeoutMessage);
+                                   
+ static async Task<bool> Expected()
+ {
+     await Task.Delay(TimeSpan.FromSeconds(1));
+     return true;
+ }
+ 
+ await WaitFor.Condition(Expected, DefaultTimeOutMessage, timeLimit);
+ 
 ```
 #### In case when you use `WaitFor.Condition` if the given condition is not met will be rise exception  
-![Screenshot](https://user-images.githubusercontent.com/6804802/103997429-bbf75600-51a3-11eb-8107-8177951e6e43.png)
+![Screenshot](https://user-images.githubusercontent.com/6804802/125397715-fc37cb00-e3b6-11eb-93b1-e29ab4bac395.png)
 
 #### In case when some exceptions happen and we got not expected value we can read information about a `number of exceptions and where it happened`
 ![Screenshot](https://user-images.githubusercontent.com/6804802/103993612-8bf98400-519e-11eb-9a95-5e93451b9cfe.png)
@@ -39,6 +48,16 @@ To do this, you must specify the actions in case of failure using the method `On
                 .Become(a => a == 5)
                 .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
                 .OnFailure(_ => -2);
+                
+ //asynchronous option         
+  var result = WaitFor.ForAsync(async () =>
+     {
+         await Task.Delay(10);
+         return 0;
+     })
+     .Become(a => a == 5)
+     .OnFailure(_ => 1, fail => fail is NotExpectedValue<int>)
+     .OnFailure(_ => -2);                
   ```  
 **Using the `OnSuccess` method, you can specify actions on the value in case of a successful result**
   ```csharp
@@ -65,8 +84,34 @@ Console.WriteLine(res) //3
 
   WaitFor.For(() => 3)
                 .Become(a => a == 4)
-                .DoWhenNotExpectedValue(_ => Console.WriteLine("Something goes wrong"))
+                .DoWhenNotExpectedValue(x => Console.WriteLine(x))
                 .OnFailure(_ => 0);
+//  Console output :
+//  Timeout after 30.6826992 second(s) and NUMBER OF ATTEMPTS 17 
+//  Expected: (a) => a == 4, but parameter 'a': 3
+
+var testClass = new SomeClass
+ {
+     SomeNumber = 5,
+     Child = new OtherClass
+     {
+        SomeNumber = 10
+     }
+ };
+ 
+_ = WaitFor.For(() => testClass)
+      .Become(a => a.Child.SomeNumber == 4)
+      .DoWhenNotExpectedValue(x => Console.WriteLine(x.ToString()));
+/*  Console output :      
+    Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
+    Expected: (a) => a.Child.SomeNumber == 4, but parameter 'a':
+    {
+     "SomeNumber": 5,
+     "Child": {
+       "SomeNumber": 10
+      }
+    }
+*/
   ```    
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
