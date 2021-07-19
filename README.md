@@ -101,7 +101,7 @@ var testClass = new SomeClass
  
 _ = WaitFor.For(() => testClass)
       .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
-      .DoWhenNotExpectedValue(x => Console.WriteLine(x.ToString()));
+      .DoWhenNotExpectedValue(x => Console.WriteLine(x));
 /*  Console output :      
     Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
     Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3
