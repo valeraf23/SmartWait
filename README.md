@@ -106,7 +106,13 @@ _ = WaitFor.For(() => testClass)
     Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
     Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3
 */
-  ```    
+
+ await WaitFor.ForAsync(Expected)
+                .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
+                .OnFailureThrowException();
+  ```
+  ![Screenshot](https://user-images.githubusercontent.com/6804802/126187841-61ca395f-6934-435d-b242-64281bf49cc5.png)
+   
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
  var res = WaitFor.For(() => actual,
