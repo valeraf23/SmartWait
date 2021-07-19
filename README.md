@@ -106,7 +106,9 @@ _ = WaitFor.For(() => testClass)
     Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
     Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3
 */
-
+```
+  ####  If you use `OnFailureThrowException` , exception will be throw with next message 
+  ```csharp
  await WaitFor.ForAsync(Expected)
                 .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
                 .OnFailureThrowException();
