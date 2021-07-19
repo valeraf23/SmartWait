@@ -107,7 +107,7 @@ _ = WaitFor.For(() => testClass)
     Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3
 */
 ```
-  ####  If you use `OnFailureThrowException` , exception will be throw with next message 
+  ** If you use `OnFailureThrowException` , exception will be throw with next message **
   ```csharp
  await WaitFor.ForAsync(Expected)
                 .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
