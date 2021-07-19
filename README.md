@@ -92,25 +92,19 @@ Console.WriteLine(res) //3
 
 var testClass = new SomeClass
  {
-     SomeNumber = 5,
+     SomeNumber = 3,
      Child = new OtherClass
      {
-        SomeNumber = 10
+        SomeNumber = 5
      }
  };
  
 _ = WaitFor.For(() => testClass)
-      .Become(a => a.Child.SomeNumber == 4)
+      .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
       .DoWhenNotExpectedValue(x => Console.WriteLine(x.ToString()));
 /*  Console output :      
     Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
-    Expected: (a) => a.Child.SomeNumber == 4, but parameter 'a':
-    {
-     "SomeNumber": 5,
-     "Child": {
-       "SomeNumber": 10
-      }
-    }
+    Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3
 */
   ```    
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
