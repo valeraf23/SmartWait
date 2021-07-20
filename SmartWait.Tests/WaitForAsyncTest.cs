@@ -275,7 +275,7 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_Rise_Exception_For_FailureResult()
+        public async Task  For_Rise_Exception_For_FailureResult()
         {
             //Arrange
             static async Task<SomeClass> Expected()
@@ -298,7 +298,7 @@ namespace SmartWait.Tests
 
             //Assert
             act.Should().Throw<WaitConditionalException>().And.Message
-                .Contains("Expected: (a) => a.Child.SomeNumber == 1 && a.SomeNumber == 3");
+                .Contains("Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3");
         }
 
         [Test]

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SmartWait.Helpers;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.Json;
-using VF.ExpressionParser;
-using TypeExtension = SmartWait.Helpers.TypeExtension;
+using System.Text.RegularExpressions;
+using ExpressionExtension = VF.ExpressionParser.ExpressionExtension;
 
 namespace SmartWait.Results.FailureTypeResults
 {
@@ -26,26 +26,36 @@ namespace SmartWait.Results.FailureTypeResults
         {
             var exceptionMsg = base.ToString();
             if (typeof(T) == typeof(bool)) return exceptionMsg;
-            var msg =
-                $"{exceptionMsg}{Environment.NewLine}Expected: {ExpressionExtension.ConvertToString(_waitCondition)}";
-            if (ActuallyValue is not null && TypeExtension.IsPrimitiveOrString(ActuallyValue.GetType()))
+            var msg = $"{exceptionMsg}{Environment.NewLine}Expected: {ExpressionExtension.ConvertToString(_waitCondition)}";
+            if (ActuallyValue is not null && ActuallyValue.GetType().IsPrimitiveOrString())
             {
                 return $"{msg}, but parameter \'{_waitCondition.Parameters.First().Name}\': {ActuallyValue}";
             }
+            return ReplaceParameters(msg);
+        }
 
-            try
+        private string ReplaceParameters(string msg)
+        {
+            var getters = MemberExpressionHelper.GetMembersFunctions<T>(_waitCondition);
+
+            foreach (var getter in getters)
             {
-                var options = new JsonSerializerOptions {WriteIndented = true};
-                string json = JsonSerializer.Serialize(ActuallyValue, options);
-                return $"{msg}, but parameter \'{_waitCondition.Parameters.First().Name}\':{Environment.NewLine} {json}";
-            }
-            catch (Exception)
-            {
-                // ignored
+                var value = getter.Getter(ActuallyValue);
+                var pattern = getter.Key;
+                var target = $"{pattern}({GetValuePattern(value)})";
+                Regex regex = new(pattern);
+                var result = regex.Replace(msg, target);
+                msg = result;
             }
 
             return msg;
-
         }
+
+        private static string GetValuePattern(object? obj) =>
+            obj switch
+            {
+                string => $"\"{obj}\"",
+                _ => $"{obj ?? "null"}"
+            };
     }
 }

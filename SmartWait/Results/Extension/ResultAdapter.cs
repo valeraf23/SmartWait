@@ -34,8 +34,7 @@ namespace SmartWait.Results.Extension
             return success;
         }
 
-        public static Result<TSuccess, TFailure> OnFailure<TSuccess, TFailure>(this Result<TSuccess, TFailure> result,
-            Action<TFailure> map)
+        public static Result<TSuccess, TFailure> OnFailure<TSuccess, TFailure>(this Result<TSuccess, TFailure> result, Action<TFailure> map)
         {
             if (result is not Failure<TSuccess, TFailure> failure) return result;
             map(failure);

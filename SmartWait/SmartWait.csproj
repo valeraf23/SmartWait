@@ -7,14 +7,14 @@
     <Company>VF</Company>
     <Authors>Valerii Fedorenko</Authors>
     <Description>Each SmartWait  instance defines the maximum amount of time to wait for a condition, as well as the frequency with which to check the condition. Furthermore, the user may configure the wait to ignore specific types of exceptions whilst waiting</Description>
-    <Version>2.1.0.0</Version>
+    <Version>2.2.0.0</Version>
     <PackageProjectUrl>https://github.com/valeraf23/SmartWait</PackageProjectUrl>
     <PackageTags>SmartWait FluentWait Fluent Wait Smart Wait</PackageTags>
     <PackageReleaseNotes>add async option
 update information when for not expected value</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/valeraf23/SmartWait</RepositoryUrl>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
     <PackageIcon>Logo.png</PackageIcon>
   </PropertyGroup>
 
@@ -27,7 +27,7 @@ update information when for not expected value</PackageReleaseNotes>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
-    <PackageReference Include="VFExpression" Version="1.0.3" />
+    <PackageReference Include="VF.ExpressionParser" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +45,7 @@ update information when for not expected value</PackageReleaseNotes>
 
   <ItemGroup>
     <Compile Include="Helpers\ExpressionExtension.cs" />
+    <Compile Include="Helpers\MemberExpressionVisitor.cs" />
     <Compile Include="Helpers\TypeExtension.cs" />
   </ItemGroup>
 
