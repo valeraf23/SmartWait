@@ -92,27 +92,29 @@ Console.WriteLine(res) //3
 
 var testClass = new SomeClass
  {
-     SomeNumber = 5,
+     SomeNumber = 3,
      Child = new OtherClass
      {
-        SomeNumber = 10
+        SomeNumber = 5
      }
  };
  
 _ = WaitFor.For(() => testClass)
-      .Become(a => a.Child.SomeNumber == 4)
-      .DoWhenNotExpectedValue(x => Console.WriteLine(x.ToString()));
+      .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
+      .DoWhenNotExpectedValue(x => Console.WriteLine(x));
 /*  Console output :      
     Timeout after 30.6749663 second(s) and NUMBER OF ATTEMPTS 17 
-    Expected: (a) => a.Child.SomeNumber == 4, but parameter 'a':
-    {
-     "SomeNumber": 5,
-     "Child": {
-       "SomeNumber": 10
-      }
-    }
+    Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3
 */
-  ```    
+```
+  **If you use `OnFailureThrowException` , exception will be throw with next message**
+  ```csharp
+ await WaitFor.ForAsync(Expected)
+                .Become(a => a.Child.SomeNumber == 1 && a.SomeNumber == 3)
+                .OnFailureThrowException();
+  ```
+  ![Screenshot](https://user-images.githubusercontent.com/6804802/126187841-61ca395f-6934-435d-b242-64281bf49cc5.png)
+   
   ####  You can use the predefined algorithm like LogarithmStep and ParabolaStep which calculate delay steps
   ```csharp
  var res = WaitFor.For(() => actual,
