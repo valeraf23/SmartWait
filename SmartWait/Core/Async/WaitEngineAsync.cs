@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmartWait.Core.Async
@@ -54,13 +53,14 @@ namespace SmartWait.Core.Async
                 var canRetry = stopwatch.Elapsed < maxWaitTime;
                 if (!canRetry)
                 {
-                    var baseFailureResult = FailureResult.Create(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage);
+                    var baseFailureResult =
+                        FailureResult.Create(retryAttempt, maxWaitTime, stopwatchElapsed, timeoutMessage);
                     return ex.Any()
                         ? baseFailureResult.WhenExceptions(ex)
                         : baseFailureResult.WhenNotExpectedValue(value, waitCondition!);
                 }
 
-                Thread.Sleep(sleep);
+                await Task.Delay(sleep);
             } while (true);
         }
     }
