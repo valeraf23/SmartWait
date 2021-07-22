@@ -40,7 +40,6 @@ namespace SmartWait.Core.Sync
                 {
                     throw;
                 }
-
                 catch (Exception e)
                 {
                     ex.Add(e);

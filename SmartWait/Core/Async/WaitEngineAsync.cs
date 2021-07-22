@@ -42,7 +42,6 @@ namespace SmartWait.Core.Async
                 {
                     throw;
                 }
-
                 catch (Exception e)
                 {
                     ex.Add(e);
