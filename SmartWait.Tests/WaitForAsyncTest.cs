@@ -275,7 +275,7 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public async Task  For_Rise_Exception_For_FailureResult()
+        public void For_Rise_Exception_For_FailureResult()
         {
             //Arrange
             static async Task<SomeClass> Expected()
