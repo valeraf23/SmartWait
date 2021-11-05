@@ -43,7 +43,7 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void Condition_WaitConditionalException_Rise()
+        public async Task Condition_WaitConditionalException_Rise()
         {
             //Arrange
             var timeLimit = TimeSpan.FromSeconds(5);
@@ -58,12 +58,11 @@ namespace SmartWait.Tests
             Func<Task> act = async () => await WaitFor.Condition(Expected, DefaultTimeOutMessage, timeLimit);
 
             //Assert
-            act.Should().Throw<WaitConditionalException>().And.Message.Should()
-                .Contain(DefaultTimeOutMessage).And.NotContain("Expected()");
+            await act.Should().ThrowExactlyAsync<WaitConditionalException>().Where(i => i.Message.Contains(DefaultTimeOutMessage) && !i.Message.Contains("Expected()"));
         }
 
         [Test]
-        public void Catch_NotIgnored_Exception()
+        public async Task Catch_NotIgnored_Exception()
         {
             //Arrange
             static Task<bool> Expected()
@@ -77,11 +76,11 @@ namespace SmartWait.Tests
                 DefaultTimeOutMessage);
 
             //Assert
-            act.Should().Throw<ArgumentException>();
+            await act.Should().ThrowExactlyAsync<ArgumentException>();
         }
 
         [Test]
-        public void Catch_Ignored_Exception()
+        public async Task Catch_Ignored_Exception()
         {
             //Arrange
             static Task<bool> Expected()
@@ -93,8 +92,9 @@ namespace SmartWait.Tests
             Func<Task> act = async () => await WaitFor.Condition(Expected, DefaultTimeOutMessage);
 
             //Assert
-            act.Should().Throw<WaitConditionalException>().And.Message.Should().Contain(nameof(ArgumentException)).And
-                .Contain(DefaultTimeOutMessage);
+            await act.Should().ThrowExactlyAsync<WaitConditionalException>()
+                .Where(i => i.Message.Contains(nameof(ArgumentException)) && i.Message.Contains(DefaultTimeOutMessage));
+
         }
 
         [Test]
@@ -275,7 +275,7 @@ namespace SmartWait.Tests
         }
 
         [Test]
-        public void For_Rise_Exception_For_FailureResult()
+        public async Task For_Rise_Exception_For_FailureResult()
         {
             //Arrange
             static async Task<SomeClass> Expected()
@@ -297,8 +297,9 @@ namespace SmartWait.Tests
                 .OnFailureThrowException();
 
             //Assert
-            act.Should().Throw<WaitConditionalException>().And.Message
-                .Contains("Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3");
+           await  act.Should().ThrowExactlyAsync<WaitConditionalException>().Where(i => 
+               i.Message.Contains
+               ("Expected: (a) => a.Child.SomeNumber(5) == 1 && a.SomeNumber(3) == 3"));
         }
 
         [Test]
