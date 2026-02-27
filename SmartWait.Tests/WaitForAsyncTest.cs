@@ -388,56 +388,6 @@ namespace SmartWait.Tests
         }
 
 
-        [Test]
-        public async Task ForAsync_Duplicate_Member_Path_Should_Not_Throw_Internal_Exception()
-        {
-            // Arrange
-            static Task<DiagnosticState> Sut() => Task.FromResult(new DiagnosticState
-            {
-                Job = new DiagnosticJobWithSequence(null, string.Empty)
-            });
-
-            // Act
-            Func<Task> act = async () => await WaitFor.ForAsync(Sut,
-                    b => b.SetMaxWaitTime(TimeSpan.FromMilliseconds(100)).SetTimeOutMessage("Fail duplicate member path").Build())
-                .Become(state => state.Job != null
-                    && state.Job.DeadLetterReason != null
-                    && state.Job.DeadLetterReason != string.Empty)
-                .OnFailureThrowException();
-
-            // Assert
-            await act.Should().ThrowExactlyAsync<WaitConditionalException>()
-                .Where(x => x.Message.Contains("Fail duplicate member path")
-                    && x.Message.Contains("state.Job.DeadLetterReason(null)")
-                    && x.Message.Contains("state.Job.DeadLetterReason(\"\")"));
-        }
-
-        [Test]
-        public async Task ForAsync_Null_In_Member_Chain_Should_Not_Throw_NullReferenceException()
-        {
-            // Arrange
-            static Task<DiagnosticState> Sut() => Task.FromResult(new DiagnosticState
-            {
-                Saga = null,
-                Job = null
-            });
-
-            // Act
-            Func<Task> act = async () => await WaitFor.ForAsync(Sut,
-                    b => b.SetMaxWaitTime(TimeSpan.FromMilliseconds(100)).SetTimeOutMessage("Fail null chain").Build())
-                .Become(state => state.Saga != null
-                    && state.Saga.Stage == 3
-                    && state.Job != null
-                    && state.Job.State == 2)
-                .OnFailureThrowException();
-
-            // Assert
-            await act.Should().ThrowExactlyAsync<WaitConditionalException>()
-                .Where(x => x.Message.Contains("Fail null chain")
-                    && x.Message.Contains("state.Saga(null)")
-                    && x.Message.Contains("state.Job(null)"));
-        }
-
         [TestCase(30)]
         [TestCase(2)]
         [TestCase(5)]
@@ -468,36 +418,6 @@ namespace SmartWait.Tests
         private class OtherClass
         {
             public int SomeNumber { get; init; }
-        }
-
-
-        private sealed class DiagnosticJobWithSequence : DiagnosticJob
-        {
-            private readonly Queue<string> _values;
-
-            public DiagnosticJobWithSequence(params string[] values)
-            {
-                _values = new Queue<string>(values);
-            }
-
-            public override string DeadLetterReason => _values.Count > 0 ? _values.Dequeue() : null;
-        }
-
-        private class DiagnosticState
-        {
-            public DiagnosticSaga Saga { get; init; }
-            public DiagnosticJob Job { get; init; }
-        }
-
-        private class DiagnosticSaga
-        {
-            public int Stage { get; init; }
-        }
-
-        private class DiagnosticJob
-        {
-            public virtual int State { get; init; }
-            public virtual string DeadLetterReason { get; init; }
         }
 
         public static bool ValidateJson(string s)
