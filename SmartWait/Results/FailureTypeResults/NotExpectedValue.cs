@@ -24,17 +24,21 @@ namespace SmartWait.Results.FailureTypeResults
 
         public override string ToString()
         {
-            var exceptionMsg = base.ToString();
-            if (typeof(T) == typeof(bool)) return exceptionMsg;
-            var msg = $"{exceptionMsg}{Environment.NewLine}Expected: {ExpressionExtension.ConvertToString(_waitCondition)}";
+            var timeoutMessage = base.ToString();
+            if (typeof(T) == typeof(bool)) return timeoutMessage;
+
+            var expectedExpression = ExpressionExtension.ConvertToString(_waitCondition);
             if (ActuallyValue is not null && ActuallyValue.GetType().IsPrimitiveOrString())
             {
-                return $"{msg}, but parameter \'{_waitCondition.Parameters.First().Name}\': {ActuallyValue}";
+                var parameterName = _waitCondition.Parameters.First().Name;
+                return $"{timeoutMessage}{Environment.NewLine}Expected: {expectedExpression}{Environment.NewLine}Actual {parameterName}: {GetValuePattern(ActuallyValue)}";
             }
-            return ReplaceParameters(msg);
+
+            var expectedWithValues = ReplaceParameters(expectedExpression);
+            return $"{timeoutMessage}{Environment.NewLine}Expected: {expectedWithValues}";
         }
 
-        private string ReplaceParameters(string msg)
+        private string ReplaceParameters(string expression)
         {
             var getters = MemberExpressionHelper.GetMembersFunctions<T>(_waitCondition);
 
@@ -44,12 +48,12 @@ namespace SmartWait.Results.FailureTypeResults
                 var pattern = getter.Key;
                 var target = $"{pattern}({GetValuePattern(value)})";
                 var escapedPattern = Regex.Escape(pattern);
-                Regex regex = new(escapedPattern);
-                var result = regex.Replace(msg, target, 1);
-                msg = result;
+                var replacePattern = $"{escapedPattern}(?!\\()";
+                Regex regex = new(replacePattern);
+                expression = regex.Replace(expression, target, 1);
             }
 
-            return msg;
+            return expression;
         }
 
         private static string GetValuePattern(object? obj) =>

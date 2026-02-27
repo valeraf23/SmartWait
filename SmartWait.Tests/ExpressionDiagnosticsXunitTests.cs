@@ -29,7 +29,8 @@ public class ExpressionDiagnosticsXunitTests
 
         exception.Message.Should().Contain("Fail duplicate member path")
             .And.Contain("state.Job.DeadLetterReason(null)")
-            .And.Contain("state.Job.DeadLetterReason(\"\")");
+            .And.Contain("state.Job.DeadLetterReason(\"\")")
+            .And.NotContain("state.Job.DeadLetterReason(null)(\"\")");
     }
 
     [Fact]
