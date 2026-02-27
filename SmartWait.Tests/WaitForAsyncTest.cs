@@ -404,7 +404,7 @@ namespace SmartWait.Tests
             }
 
             await WaitFor.ForAsync(Func, b => b.SetMaxWaitTime(maxTime).Build()).Become(x => x == 6);
-            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(maxTime);
+            stopwatch.Elapsed.Should().BeGreaterThanOrEqualTo(maxTime);
         }
 
 

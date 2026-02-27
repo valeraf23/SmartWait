@@ -372,7 +372,7 @@ namespace SmartWait.Tests
             var maxTime = TimeSpan.FromSeconds(sec);
             var stopwatch = Stopwatch.StartNew();
             WaitFor.For(() => 5, b => b.SetMaxWaitTime(maxTime).Build()).Become(x => x == 6);
-            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(maxTime);
+            stopwatch.Elapsed.Should().BeGreaterThanOrEqualTo(maxTime);
         }
 
         private static T Do<T>(Func<T> act, TimeSpan time)
