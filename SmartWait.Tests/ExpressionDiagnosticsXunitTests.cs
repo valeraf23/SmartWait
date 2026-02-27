@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using SmartWait.Core;
 using SmartWait.Core.Async;
+using SmartWait.Results.Extension;
 using Xunit;
 
 namespace SmartWait.Tests;
@@ -68,13 +69,13 @@ public class ExpressionDiagnosticsXunitTests
 
         Func<Task> act = async () => await WaitFor.ForAsync(Sut,
                 b => b.SetMaxWaitTime(TimeSpan.FromMilliseconds(100)).SetTimeOutMessage("Fail nullable value").Build())
-            .Become(state => state.F != null && state.F.Value == 1)
+            .Become(state => state.F.HasValue && state.F.Value == 1)
             .OnFailureThrowException();
 
         var exception = await Assert.ThrowsAsync<WaitConditionalException>(act);
 
         exception.Message.Should().Contain("Fail nullable value")
-            .And.Contain("state.F(null)")
+            .And.Contain("state.HasValue(False)")
             .And.Contain("state.F.Value(null)");
     }
 
