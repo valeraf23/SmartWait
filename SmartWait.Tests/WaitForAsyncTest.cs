@@ -436,6 +436,20 @@ namespace SmartWait.Tests
         }
 
 
+        [Fact]
+        public async Task Negative_Step_Duration_Should_Throw_ArgumentOutOfRangeException()
+        {
+            //Act
+            Func<Task> act = () => WaitFor.ForAsync(() => Task.FromResult(1),
+                    b => b.SetMaxWaitTime(TimeSpan.FromSeconds(5))
+                        .SetTimeBetweenStep(_ => TimeSpan.FromMilliseconds(-1))
+                        .Build())
+                .Become(x => x == 2);
+
+            //Assert
+            await act.Should().ThrowAsync<ArgumentOutOfRangeException>().WithParameterName("stepEngine");
+        }
+
         [Theory]
         [InlineData(30)]
         [InlineData(2)]

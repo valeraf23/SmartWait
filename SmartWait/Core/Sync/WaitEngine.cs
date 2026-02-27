@@ -64,6 +64,8 @@ namespace SmartWait.Core.Sync
                 if (remaining <= TimeSpan.Zero) continue;
 
                 var sleep = stepEngine.Invoke(retryAttempt);
+                if (sleep < TimeSpan.Zero)
+                    throw new ArgumentOutOfRangeException(nameof(stepEngine), sleep, "Step engine must not return a negative sleep duration.");
                 var delay = sleep <= remaining ? sleep : remaining;
                 if (delay > TimeSpan.Zero)
                 {
