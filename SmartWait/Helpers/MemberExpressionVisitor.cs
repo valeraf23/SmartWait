@@ -27,19 +27,30 @@ namespace SmartWait.Helpers
 
             return memberExpressionVisitor.GetMemberExpressions(exp).Select(memberExpression =>
             {
-                var body = Expression.Convert(memberExpression.Value, TypeOfObject);
+                var body = Expression.Convert(memberExpression, TypeOfObject);
                 var lambda = Expression.Lambda<Func<T, object>>(body, parameterExpression);
+                var compiledLambda = lambda.Compile();
 
-                return new MemberGetter<T>(memberExpression.Key, lambda.Compile());
+                return new MemberGetter<T>(memberExpression.ToString(), input =>
+                {
+                    try
+                    {
+                        return compiledLambda(input);
+                    }
+                    catch (NullReferenceException)
+                    {
+                        return null;
+                    }
+                });
             });
         }
 
         private sealed class MemberExpressionVisitor : ExpressionVisitor
         {
-            private readonly Dictionary<string, MemberExpression> _memberExpressions = new();
+            private readonly List<MemberExpression> _memberExpressions = new();
             private bool _canAdd = true;
 
-            public Dictionary<string, MemberExpression> GetMemberExpressions(Expression exp)
+            public IReadOnlyCollection<MemberExpression> GetMemberExpressions(Expression exp)
             {
                 Visit(exp);
                 return _memberExpressions;
@@ -51,7 +62,7 @@ namespace SmartWait.Helpers
                 {
                     if (_canAdd)
                     {
-                        _memberExpressions.Add(node.ToString(), node);
+                        _memberExpressions.Add(node);
                         _canAdd = false;
                     }
 

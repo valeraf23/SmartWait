@@ -43,8 +43,9 @@ namespace SmartWait.Results.FailureTypeResults
                 var value = getter.Getter(ActuallyValue);
                 var pattern = getter.Key;
                 var target = $"{pattern}({GetValuePattern(value)})";
-                Regex regex = new(pattern);
-                var result = regex.Replace(msg, target);
+                var escapedPattern = Regex.Escape(pattern);
+                Regex regex = new(escapedPattern);
+                var result = regex.Replace(msg, target, 1);
                 msg = result;
             }
 
