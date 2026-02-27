@@ -39,6 +39,15 @@ namespace SmartWait.Helpers
                     }
                     catch (NullReferenceException)
                     {
+                        // When a nested member access hits a null reference, we treat it as a null value.
+                        return null;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Intentionally catch InvalidOperationException to normalize expression-evaluation
+                        // failures (for example, accessing Nullable<T>.Value when it is null) to null
+                        // instead of propagating the exception. This keeps the getter contract consistent
+                        // with the NullReferenceException handling above.
                         return null;
                     }
                 });

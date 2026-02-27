@@ -58,6 +58,27 @@ public class ExpressionDiagnosticsXunitTests
             .And.Contain("state.Job(null)");
     }
 
+
+    [Fact]
+    public async Task Nullable_Value_Member_Access_Should_Not_Throw_When_Null()
+    {
+        static Task<NullableValueState> Sut() => Task.FromResult(new NullableValueState
+        {
+            F = null
+        });
+
+        Func<Task> act = async () => await WaitFor.ForAsync(Sut,
+                b => b.SetMaxWaitTime(TimeSpan.FromMilliseconds(100)).SetTimeOutMessage("Fail nullable value").Build())
+            .Become(state => state.F.HasValue && state.F.Value == 1)
+            .OnFailureThrowException();
+
+        var exception = await Assert.ThrowsAsync<WaitConditionalException>(act);
+
+        exception.Message.Should().Contain("Fail nullable value")
+            .And.Contain("state.F.HasValue(False)")
+            .And.Contain("state.F.Value(null)");
+    }
+
     private sealed class DiagnosticJobWithSequence : DiagnosticJob
     {
         private readonly Queue<string> _values;
@@ -68,6 +89,12 @@ public class ExpressionDiagnosticsXunitTests
         }
 
         public override string DeadLetterReason => _values.Count > 0 ? _values.Dequeue() : null;
+    }
+
+
+    private sealed class NullableValueState
+    {
+        public int? F { get; init; }
     }
 
     private sealed class DiagnosticState
