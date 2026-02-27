@@ -1,6 +1,7 @@
 using SmartWait.Core.Sync;
 using SmartWait.Results.Extension;
 using System;
+using System.Threading;
 
 namespace SmartWait.Core
 {
@@ -13,7 +14,7 @@ namespace SmartWait.Core
         /// <param name="waitCondition">Method that will return true if event appeared. Wait in stops in case of true</param>
         /// <param name="timeoutMessage">Error message for exception</param>
         public static void Condition(Func<bool> waitCondition, string timeoutMessage) => Condition(waitCondition,
-                builder => builder.SetMaxWaitTime(TimeSpan.FromSeconds(30)).Build(), timeoutMessage);
+                builder => builder.SetMaxWaitTime(TimeSpan.FromSeconds(30)).Build(), timeoutMessage, CancellationToken.None);
 
         /// <summary>
         ///     Wait for some event. Throws exception if event did not appear
@@ -26,7 +27,7 @@ namespace SmartWait.Core
             Action<int, TimeSpan> callback) => Condition(waitCondition,
                 builder => builder.SetMaxWaitTime(maxWaitTime)
                     .SetCallbackForSuccessful(callback)
-                    .Build(), timeoutMessage);
+                    .Build(), timeoutMessage, CancellationToken.None);
 
         /// <summary>
         ///     Wait for some event. Throws exception if event did not appear
@@ -36,15 +37,26 @@ namespace SmartWait.Core
         /// <param name="timeoutMessage">Error message for exception</param>
         public static void Condition(Func<bool> waitCondition, string timeoutMessage, TimeSpan maxWaitTime) => Condition(waitCondition,
                 builder => builder.SetMaxWaitTime(maxWaitTime)
-                    .Build(), timeoutMessage);
+                    .Build(), timeoutMessage, CancellationToken.None);
+
+        public static void Condition(Func<bool> waitCondition, string timeoutMessage, CancellationToken cancellationToken) => Condition(waitCondition,
+            builder => builder.SetMaxWaitTime(TimeSpan.FromSeconds(30)).Build(), timeoutMessage, cancellationToken);
+
+        public static void Condition(Func<bool> waitCondition, string timeoutMessage, TimeSpan maxWaitTime, CancellationToken cancellationToken) => Condition(waitCondition,
+            builder => builder.SetMaxWaitTime(maxWaitTime)
+                .Build(), timeoutMessage, cancellationToken);
 
         public static void Condition(Func<bool> waitCondition, Func<WaitBuilder<bool>, Wait<bool>> buildWaiter,
-            string timeoutMessage)
+            string timeoutMessage) => Condition(waitCondition, buildWaiter, timeoutMessage, CancellationToken.None);
+
+        public static void Condition(Func<bool> waitCondition, Func<WaitBuilder<bool>, Wait<bool>> buildWaiter,
+            string timeoutMessage,
+            CancellationToken cancellationToken)
         {
             var waiter = Wait<bool>.CreateBuilder(waitCondition);
             waiter.SetTimeOutMessage(timeoutMessage);
             buildWaiter(waiter)
-                .For(x => x).OnFailureThrowException();
+                .For(x => x, cancellationToken).OnFailureThrowException();
         }
 
         public static Builder<T> For<T>(Func<T> func) => new(func);

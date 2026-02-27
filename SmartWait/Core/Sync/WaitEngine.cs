@@ -18,7 +18,8 @@ namespace SmartWait.Core.Sync
             Func<int, TimeSpan> stepEngine,
             string timeoutMessage,
             IList<Type> notIgnoredExceptionType,
-            Action<int, TimeSpan> callbackIfWaitSuccessful)
+            Action<int, TimeSpan> callbackIfWaitSuccessful,
+            CancellationToken cancellationToken = default)
         {
             var retryAttempt = 0;
             TSuccessResult? value = default;
@@ -27,6 +28,7 @@ namespace SmartWait.Core.Sync
             var stopwatch = Stopwatch.StartNew();
             do
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
                     value = action();
@@ -47,9 +49,8 @@ namespace SmartWait.Core.Sync
 
                 if (retryAttempt < int.MaxValue) retryAttempt++;
 
-                var sleep = stepEngine.Invoke(retryAttempt);
                 var stopwatchElapsed = stopwatch.Elapsed;
-                var canRetry = stopwatch.Elapsed < maxWaitTime;
+                var canRetry = stopwatchElapsed < maxWaitTime;
                 if (!canRetry)
                 {
                     var baseFailureResult =
@@ -59,7 +60,15 @@ namespace SmartWait.Core.Sync
                         : baseFailureResult.WhenNotExpectedValue(value, waitCondition!);
                 }
 
-                Thread.Sleep(sleep);
+                var remaining = maxWaitTime - stopwatchElapsed;
+                if (remaining <= TimeSpan.Zero) continue;
+
+                var sleep = stepEngine.Invoke(retryAttempt);
+                var delay = sleep <= remaining ? sleep : remaining;
+                if (delay > TimeSpan.Zero)
+                {
+                    cancellationToken.WaitHandle.WaitOne(delay);
+                }
             } while (true);
         }
     }

@@ -2,6 +2,7 @@
 using SmartWait.Results.FailureTypeResults;
 using System;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmartWait.Core.Async
@@ -15,14 +16,17 @@ namespace SmartWait.Core.Async
             Factory = factory;
         }
 
-        public Task<Result<T, FailureResult>> For(Expression<Func<T, bool>> waitCondition) => WaitEngineAsync.ExecuteAsync(
+        public Task<Result<T, FailureResult>> For(Expression<Func<T, bool>> waitCondition) => For(waitCondition, CancellationToken.None);
+
+        public Task<Result<T, FailureResult>> For(Expression<Func<T, bool>> waitCondition, CancellationToken cancellationToken) => WaitEngineAsync.ExecuteAsync(
                 Factory,
                 waitCondition,
                 MaxWaitTime,
                 Step,
                 TimeoutMessage,
                 NotIgnoredExceptionType,
-                CallbackIfWaitSuccessful);
+                CallbackIfWaitSuccessful,
+                cancellationToken: cancellationToken);
 
         public static WaitBuilderAsync<T> CreateBuilder(Func<Task<T>> factory) => new(factory);
     }

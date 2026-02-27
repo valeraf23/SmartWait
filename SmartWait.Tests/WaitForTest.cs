@@ -361,6 +361,54 @@ namespace SmartWait.Tests
             failureResult.ActuallyValue.Should().Be(3);
         }
 
+
+        [Fact]
+        public void SetNotIgnoredExceptionType_Should_Allow_CustomException()
+        {
+            //Arrange
+            static bool Sut() => throw new CustomTestException();
+
+            //Act
+            Action act = () => WaitFor.Condition(Sut,
+                buildWaiter => buildWaiter.SetNotIgnoredExceptionType<CustomTestException>().Build(),
+                DefaultTimeOutMessage);
+
+            //Assert
+            act.Should().Throw<CustomTestException>();
+        }
+
+        [Fact]
+        public void Condition_Should_Stop_On_Cancellation()
+        {
+            //Arrange
+            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(150));
+
+            //Act
+            Action act = () => WaitFor.Condition(() => false, DefaultTimeOutMessage, cts.Token);
+
+            //Assert
+            act.Should().Throw<OperationCanceledException>();
+        }
+
+        [Fact]
+        public void MaxTime_Should_Not_Overshoot_For_Large_Step()
+        {
+            //Arrange
+            var maxTime = TimeSpan.FromMilliseconds(120);
+            var stopwatch = Stopwatch.StartNew();
+
+            //Act
+            _ = WaitFor.For(() => 1,
+                b => b.SetMaxWaitTime(maxTime)
+                    .SetTimeBetweenStep(TimeSpan.FromSeconds(1))
+                    .Build())
+                .Become(x => x == 2);
+
+            //Assert
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(350));
+        }
+
+
         [Theory]
         [InlineData(30)]
         [InlineData(2)]
@@ -394,6 +442,8 @@ namespace SmartWait.Tests
         {
             public int SomeNumber { get; init; }
         }
+
+        private sealed class CustomTestException : Exception { }
 
         public static bool ValidateJson(string s)
         {
