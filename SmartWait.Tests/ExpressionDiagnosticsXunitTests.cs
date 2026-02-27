@@ -75,7 +75,7 @@ public class ExpressionDiagnosticsXunitTests
         var exception = await Assert.ThrowsAsync<WaitConditionalException>(act);
 
         exception.Message.Should().Contain("Fail nullable value")
-            .And.Contain("state.HasValue(False)")
+            .And.Contain("state.F.HasValue(False)")
             .And.Contain("state.F.Value(null)");
     }
 
