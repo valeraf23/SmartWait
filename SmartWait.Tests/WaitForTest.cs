@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 using SmartWait.Core;
 using SmartWait.Results;
 using SmartWait.Results.Extension;
@@ -15,13 +15,11 @@ using System.Threading.Tasks;
 
 namespace SmartWait.Tests
 {
-    [TestFixture]
-    [Parallelizable(ParallelScope.Children)]
-    internal class WaitForTest
+    public class WaitForTest
     {
         private const string DefaultTimeOutMessage = "Fail";
 
-        [Test]
+        [Fact]
         public void Condition_Success()
         {
             //Arrange
@@ -33,10 +31,10 @@ namespace SmartWait.Tests
 
             //Assert
             WaitFor.Condition(() => actual, DefaultTimeOutMessage);
-            Assert.Pass();
+            actual.Should().BeTrue();
         }
 
-        [Test]
+        [Fact]
         public void Condition_WaitConditionalException_Rise()
         {
             //Arrange
@@ -53,7 +51,7 @@ namespace SmartWait.Tests
                 .Contain(DefaultTimeOutMessage);
         }
 
-        [Test]
+        [Fact]
         public void Catch_NotIgnored_Exception()
         {
             //Arrange
@@ -68,7 +66,7 @@ namespace SmartWait.Tests
             act.Should().Throw<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public void Catch_Ignored_Exception()
         {
             //Arrange
@@ -81,7 +79,7 @@ namespace SmartWait.Tests
                 .Contain(DefaultTimeOutMessage);
         }
 
-        [Test]
+        [Fact]
         public void For_Success()
         {
             //Arrange
@@ -97,7 +95,7 @@ namespace SmartWait.Tests
             res.Should().Be(3);
         }
 
-        [Test]
+        [Fact]
         public void For_Failure()
         {
             //Arrange
@@ -116,7 +114,7 @@ namespace SmartWait.Tests
             res.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void For_Failure_OnFailureWhenNotExpectedValue()
         {
             //Arrange
@@ -136,7 +134,7 @@ namespace SmartWait.Tests
             res.Should().Be(3);
         }
 
-        [Test]
+        [Fact]
         public void For_Failure_DoWhenNotExpectedValue()
         {
             //Arrange
@@ -156,7 +154,7 @@ namespace SmartWait.Tests
             callbackExpected.Should().Be(3);
         }
 
-        [Test]
+        [Fact]
         public void For_Success_Return_New_Type()
         {
             //Arrange
@@ -174,7 +172,7 @@ namespace SmartWait.Tests
             res.Should().BeEquivalentTo(3.ToString());
         }
 
-        [Test]
+        [Fact]
         public void For_Failure_With_Condition()
         {
             //Arrange
@@ -193,7 +191,7 @@ namespace SmartWait.Tests
             res.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void For_Failure_Return_ActuallyValue()
         {
             //Arrange
@@ -213,7 +211,7 @@ namespace SmartWait.Tests
             notExpectedResult.ActuallyValue.Should().Be(3);
         }
 
-        [Test]
+        [Fact]
         public void For_Success_Return_ActuallyValue()
         {
             //Arrange
@@ -231,7 +229,7 @@ namespace SmartWait.Tests
             res.Should().Be(3);
         }
 
-        [Test]
+        [Fact]
         public void For_Success_For_Classes()
         {
             //Arrange
@@ -256,7 +254,7 @@ namespace SmartWait.Tests
             res.Child.SomeNumber.Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void For_Rise_Exception_For_FailureResult()
         {
             //Arrange
@@ -279,10 +277,11 @@ namespace SmartWait.Tests
                     .OnFailureThrowException();
 
             //Assert
-            Assert.That(Func, Throws.TypeOf<WaitConditionalException>());
+            Action act = () => Func();
+            act.Should().ThrowExactly<WaitConditionalException>();
         }
 
-        [Test]
+        [Fact]
         public void Exceptions_Should_Has_Json_View()
         {
             //Arrange
@@ -317,7 +316,7 @@ namespace SmartWait.Tests
             });
         }
 
-        [Test]
+        [Fact]
         public void For_OnFailureWhenWasExceptions()
         {
             //Arrange
@@ -341,7 +340,7 @@ namespace SmartWait.Tests
             ValidateJson(actualErrorMsg).Should().BeTrue($"Expected Json representation {actualErrorMsg}");
         }
 
-        [Test]
+        [Fact]
         public void NotExpectedValue_Should_Contain_ActuallyValue()
         {
             //Arrange
@@ -362,17 +361,18 @@ namespace SmartWait.Tests
             failureResult.ActuallyValue.Should().Be(3);
         }
 
-        [TestCase(30)]
-        [TestCase(2)]
-        [TestCase(5)]
-        [TestCase(10)]
-        [TestCase(60)]
+        [Theory]
+        [InlineData(30)]
+        [InlineData(2)]
+        [InlineData(5)]
+        [InlineData(10)]
+        [InlineData(60)]
         public void MaxTime_Should_be_Close_To_Actual(int sec)
         {
             var maxTime = TimeSpan.FromSeconds(sec);
             var stopwatch = Stopwatch.StartNew();
             WaitFor.For(() => 5, b => b.SetMaxWaitTime(maxTime).Build()).Become(x => x == 6);
-            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(maxTime);
+            stopwatch.Elapsed.Should().BeGreaterThanOrEqualTo(maxTime);
         }
 
         private static T Do<T>(Func<T> act, TimeSpan time)
