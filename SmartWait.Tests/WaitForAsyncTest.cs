@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -386,6 +387,54 @@ namespace SmartWait.Tests
         }
 
 
+
+        [Fact]
+        public async Task SetNotIgnoredExceptionType_Should_Allow_CustomException()
+        {
+            //Arrange
+            static Task<bool> Sut() => throw new CustomAsyncTestException();
+
+            //Act
+            Func<Task> act = async () => await WaitFor.Condition(Sut,
+                buildWaiter => buildWaiter.SetNotIgnoredExceptionType<CustomAsyncTestException>().Build(),
+                DefaultTimeOutMessage);
+
+            //Assert
+            await act.Should().ThrowAsync<CustomAsyncTestException>();
+        }
+
+        [Fact]
+        public async Task Condition_Should_Stop_On_Cancellation()
+        {
+            //Arrange
+            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(150));
+
+            //Act
+            Func<Task> act = async () => await WaitFor.Condition(() => Task.FromResult(false), DefaultTimeOutMessage, cts.Token);
+
+            //Assert
+            await act.Should().ThrowAsync<OperationCanceledException>();
+        }
+
+        [Fact]
+        public async Task MaxTime_Should_Not_Overshoot_For_Large_Step()
+        {
+            //Arrange
+            var maxTime = TimeSpan.FromMilliseconds(120);
+            var stopwatch = Stopwatch.StartNew();
+
+            //Act
+            _ = await WaitFor.ForAsync(() => Task.FromResult(1),
+                b => b.SetMaxWaitTime(maxTime)
+                    .SetTimeBetweenStep(TimeSpan.FromSeconds(1))
+                    .Build())
+                .Become(x => x == 2);
+
+            //Assert
+            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(350));
+        }
+
+
         [Theory]
         [InlineData(30)]
         [InlineData(2)]
@@ -418,6 +467,8 @@ namespace SmartWait.Tests
         {
             public int SomeNumber { get; init; }
         }
+
+        private sealed class CustomAsyncTestException : Exception { }
 
         public static bool ValidateJson(string s)
         {

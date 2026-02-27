@@ -23,34 +23,63 @@ namespace SmartWait.Core
             _actions.Add(key, act);
         }
 
-        public void SetTimeBetweenStep(TimeSpan step) => AddAction(nameof(_wait.Step), () => _wait.Step = _ => step);
+        public void SetTimeBetweenStep(TimeSpan step)
+        {
+            if (step < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(step), "Step must be non-negative.");
+            AddAction(nameof(_wait.Step), () => _wait.Step = _ => step);
+        }
 
-        public void SetTimeOutMessage(string timeOutMessage) => AddAction(nameof(_wait.TimeoutMessage), () => _wait.TimeoutMessage = timeOutMessage);
+        public void SetTimeOutMessage(string timeOutMessage)
+        {
+            if (timeOutMessage is null) throw new ArgumentNullException(nameof(timeOutMessage));
+            AddAction(nameof(_wait.TimeoutMessage), () => _wait.TimeoutMessage = timeOutMessage);
+        }
 
-        public void SetTimeBetweenStep(Func<int, TimeSpan> step) => AddAction(nameof(_wait.Step), () => _wait.Step = step);
+        public void SetTimeBetweenStep(Func<int, TimeSpan> step)
+        {
+            if (step is null) throw new ArgumentNullException(nameof(step));
+            AddAction(nameof(_wait.Step), () => _wait.Step = step);
+        }
 
-        public void SetTimeBetweenStep(IStep<int> step) => AddAction(nameof(_wait.Step), () => _wait.Step = step.Invoke);
+        public void SetTimeBetweenStep(IStep<int> step)
+        {
+            if (step is null) throw new ArgumentNullException(nameof(step));
+            AddAction(nameof(_wait.Step), () => _wait.Step = step.Invoke);
+        }
 
         public void SetLogarithmStep(Time time) => AddAction(nameof(_wait.Step), () => _wait.Step = new LogarithmStep(time).Invoke);
 
         public void SetParabolaStep(Time time) => AddAction(nameof(_wait.Step), () => _wait.Step = new ParabolaStep(time).Invoke);
 
-        public void SetMaxWaitTime(TimeSpan maxWaitTime) => AddAction(nameof(_wait.MaxWaitTime), () => _wait.MaxWaitTime = maxWaitTime);
+        public void SetMaxWaitTime(TimeSpan maxWaitTime)
+        {
+            if (maxWaitTime < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(maxWaitTime), "Max wait time must be non-negative.");
+            AddAction(nameof(_wait.MaxWaitTime), () => _wait.MaxWaitTime = maxWaitTime);
+        }
 
-        public void SetCallbackForSuccessful(Action<int, TimeSpan> callbackIfWaitSuccessful) => AddAction(nameof(_wait.CallbackIfWaitSuccessful),
+        public void SetCallbackForSuccessful(Action<int, TimeSpan> callbackIfWaitSuccessful)
+        {
+            if (callbackIfWaitSuccessful is null) throw new ArgumentNullException(nameof(callbackIfWaitSuccessful));
+            AddAction(nameof(_wait.CallbackIfWaitSuccessful),
                 () => _wait.CallbackIfWaitSuccessful += callbackIfWaitSuccessful);
+        }
 
         public void SetNotIgnoredExceptionType(IEnumerable<Type> types)
         {
+            if (types is null) throw new ArgumentNullException(nameof(types));
+
             var notIgnoredExceptionType = types as Type[] ?? types.ToArray();
-            var isExceptionsTypes = notIgnoredExceptionType.All(x => x.IsAssignableFrom(typeof(Exception)));
-            if (!isExceptionsTypes) throw new ArgumentException("Should be Exception types");
+            var isExceptionsTypes = notIgnoredExceptionType.All(x => x is not null && typeof(Exception).IsAssignableFrom(x));
+            if (!isExceptionsTypes) throw new ArgumentException("Should be Exception types", nameof(types));
 
             _wait.NotIgnoredExceptionType.AddRange(notIgnoredExceptionType);
         }
 
         public void SetNotIgnoredExceptionType(Type type, params Type[] types)
         {
+            if (type is null) throw new ArgumentNullException(nameof(type));
+            if (types is null) throw new ArgumentNullException(nameof(types));
+
             var typesList = new List<Type>(types) { type };
             SetNotIgnoredExceptionType(typesList);
         }

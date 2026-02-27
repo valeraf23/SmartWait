@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmartWait.Core.Async
@@ -19,7 +20,8 @@ namespace SmartWait.Core.Async
             string timeoutMessage,
             IList<Type> notIgnoredExceptionType,
             Action<int, TimeSpan> callbackIfWaitSuccessful,
-            bool continueOnCapturedContext = false)
+            bool continueOnCapturedContext = false,
+            CancellationToken cancellationToken = default)
         {
             var retryAttempt = 0;
             TSuccessResult? value = default;
@@ -28,6 +30,7 @@ namespace SmartWait.Core.Async
             var stopwatch = Stopwatch.StartNew();
             do
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
                     value = await action().ConfigureAwait(continueOnCapturedContext);
@@ -48,9 +51,8 @@ namespace SmartWait.Core.Async
 
                 if (retryAttempt < int.MaxValue) retryAttempt++;
 
-                var sleep = stepEngine.Invoke(retryAttempt);
                 var stopwatchElapsed = stopwatch.Elapsed;
-                var canRetry = stopwatch.Elapsed < maxWaitTime;
+                var canRetry = stopwatchElapsed < maxWaitTime;
                 if (!canRetry)
                 {
                     var baseFailureResult =
@@ -60,7 +62,15 @@ namespace SmartWait.Core.Async
                         : baseFailureResult.WhenNotExpectedValue(value, waitCondition!);
                 }
 
-                await Task.Delay(sleep);
+                var remaining = maxWaitTime - stopwatchElapsed;
+                if (remaining <= TimeSpan.Zero) continue;
+
+                var sleep = stepEngine.Invoke(retryAttempt);
+                var delay = sleep <= remaining ? sleep : remaining;
+                if (delay > TimeSpan.Zero)
+                {
+                    await Task.Delay(delay, cancellationToken).ConfigureAwait(continueOnCapturedContext);
+                }
             } while (true);
         }
     }
