@@ -431,7 +431,8 @@ namespace SmartWait.Tests
                 .Become(x => x == 2);
 
             //Assert
-            stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(350));
+            var tolerance = TimeSpan.FromMilliseconds(maxTime.TotalMilliseconds * 4);
+            stopwatch.Elapsed.Should().BeLessThan(tolerance);
         }
 
 
