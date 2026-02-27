@@ -12,6 +12,8 @@
     <PackageTags>SmartWait FluentWait Fluent Wait Smart Wait</PackageTags>
     <PackageReleaseNotes>update packages</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/valeraf23/SmartWait</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <AssemblyVersion>2.2.0.3</AssemblyVersion>
     <FileVersion>2.2.0.3</FileVersion>
     <PackageIcon>Logo.png</PackageIcon>
@@ -33,6 +35,10 @@
     <None Include="..\..\..\..\Desktop\Logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>/</PackagePath>
     </None>
   </ItemGroup>
 
