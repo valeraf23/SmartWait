@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using SmartWait.Core;
 using SmartWait.Core.Async;
+using SmartWait.Results.Extension;
 using Xunit;
 
 namespace SmartWait.Tests;
