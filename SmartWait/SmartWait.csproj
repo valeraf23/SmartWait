@@ -1,20 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
     <Company>VF</Company>
     <Authors>Valerii Fedorenko</Authors>
     <Description>Each SmartWait  instance defines the maximum amount of time to wait for a condition, as well as the frequency with which to check the condition. Furthermore, the user may configure the wait to ignore specific types of exceptions whilst waiting</Description>
-    <Version>2.2.0.2</Version>
+    <Version>2.2.0.3</Version>
     <PackageProjectUrl>https://github.com/valeraf23/SmartWait</PackageProjectUrl>
     <PackageTags>SmartWait FluentWait Fluent Wait Smart Wait</PackageTags>
     <PackageReleaseNotes>update packages</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/valeraf23/SmartWait</RepositoryUrl>
-    <AssemblyVersion>2.2.0.2</AssemblyVersion>
-    <FileVersion>2.2.0.2</FileVersion>
-    <PackageIcon>Logo.png</PackageIcon>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyVersion>2.2.0.3</AssemblyVersion>
+    <FileVersion>2.2.0.3</FileVersion>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,14 +27,19 @@
 
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
-    <PackageReference Include="VF.ExpressionParser" Version="1.0.1" />
+    <PackageReference Include="System.Text.Json" Version="10.0.3" />
+    <PackageReference Include="VF.ExpressionParser" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\Desktop\Logo.png">
+    <None Include="..\icon.png">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="..\README.md">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath>/</PackagePath>
     </None>
   </ItemGroup>
 
