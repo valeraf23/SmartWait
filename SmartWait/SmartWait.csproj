@@ -16,7 +16,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <AssemblyVersion>2.2.0.3</AssemblyVersion>
     <FileVersion>2.2.0.3</FileVersion>
-    <PackageIcon>Logo.png</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,9 +32,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\Desktop\Logo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
+    <None Include="..\icon.png">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="..\README.md">
       <Pack>True</Pack>
