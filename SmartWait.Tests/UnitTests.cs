@@ -1,43 +1,43 @@
 ﻿using System;
 using FluentAssertions;
 using FluentAssertions.Extensions;
-using NUnit.Framework;
+using Xunit;
 using SmartWait.Core.Sync;
 using SmartWait.WaitSteps;
 
 namespace SmartWait.Tests
 {
-    [TestFixture]
-    [Parallelizable(ParallelScope.Children)]
-    internal class UnitTests
+    public class UnitTests
     {
-        [TestCase(WaitSteps.Time.FromHours, 8)]
-        [TestCase(WaitSteps.Time.FromMilliseconds, 8)]
-        [TestCase(WaitSteps.Time.FromMinutes, 8)]
-        [TestCase(WaitSteps.Time.FromSeconds, 8)]
-        public void Time(Time time, int step)
+        [Theory]
+        [InlineData("FromHours", 8)]
+        [InlineData("FromMilliseconds", 8)]
+        [InlineData("FromMinutes", 8)]
+        [InlineData("FromSeconds", 8)]
+        public void Time(string methodName, int step)
         {
-            var methodName = time.ToString().Replace("From", "");
-            var methodInfo = typeof(FluentTimeSpanExtensions).GetMethod(methodName, new[] {step.GetType()});
+            var extensionMethodName = methodName.Replace("From", "");
+            var methodInfo = typeof(FluentTimeSpanExtensions).GetMethod(extensionMethodName, new[] {step.GetType()});
             var expectedTimeSpan = (TimeSpan) methodInfo.Invoke(null, new object[] {step});
+            var time = (Time)Enum.Parse(typeof(Time), methodName);
             time.ToSpan(step).Should().Be(expectedTimeSpan);
         }
 
-        [Test]
+        [Fact]
         public void LogarithmStep_Argument_Should_be_higher_than_0()
         {
             Action act = () => new LogarithmStep().Invoke(0);
             act.Should().Throw<ArgumentException>().And.Message.Should().Contain("Should be higher than 0");
         }
 
-        [Test]
+        [Fact]
         public void ParabolaStep_Argument_Should_be_higher_than_0()
         {
             Action act = () => new ParabolaStep().Invoke(0);
             act.Should().Throw<ArgumentException>().And.Message.Should().Contain("Should be higher than 0");
         }
 
-        [Test]
+        [Fact]
         public void WaitBuilder_Should_Throw_Exception_For_duplicate_step()
         {
             Action act = () =>
