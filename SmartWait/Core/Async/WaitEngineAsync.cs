@@ -65,7 +65,15 @@ namespace SmartWait.Core.Async
                 var remaining = maxWaitTime - stopwatchElapsed;
                 if (remaining <= TimeSpan.Zero) continue;
 
-                var sleep = stepEngine.Invoke(retryAttempt);
+                TimeSpan sleep;
+                try
+                {
+                    sleep = stepEngine.Invoke(retryAttempt);
+                }
+                catch (OverflowException)
+                {
+                    sleep = remaining;
+                }
                 var delay = sleep <= remaining ? sleep : remaining;
                 if (delay > TimeSpan.Zero)
                 {
